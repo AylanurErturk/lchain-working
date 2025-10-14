@@ -154,7 +154,6 @@ public class SkipNode implements SkipGraphNode {
             logger.debug("Inserting: " + insertedNode.getNumID());
             // We search through the introducer node to find the node with
             // the closest num ID
-            logger.info("introducer address: " + introducer +" is inserted " +isInserted);
             NodeInfo closestNode;
             if (isInserted) {
                 closestNode = searchByNumID(insertedNode.getNumID());
@@ -398,7 +397,6 @@ public class SkipNode implements SkipGraphNode {
             int level = lookup.getMaxLevels();
             // route search to closest data node
             int num = getBestNum(searchTarget);
-            logger.info("num is: " + num);
             if (lookup.get(num, Const.ZERO_LEVEL, Const.LEFT) == null
                     && lookup.get(num, Const.ZERO_LEVEL, Const.RIGHT) == null) {
                 lst.add(lookup.get(num));
