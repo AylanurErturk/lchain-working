@@ -74,7 +74,6 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     if (isInitial) isInserted = true;
 
     // adds values of numID and nameID to lookup table
-    logger.info(isInitial + " name: " +name + " num: " +numID );
     NodeInfo peer = new NodeInfo(address, numID, nameID);
     addPeerNode(peer);
 
@@ -848,7 +847,6 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
           Thread.sleep(randomWait);
           logger.debug("Mining ...");
           mineAttempt();
-          logger.debug("Mining Done.");
         }
       }
     } catch (Exception e) {
