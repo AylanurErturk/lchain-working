@@ -41,27 +41,19 @@ public class RMIUnderlay extends Underlay {
     this.address = IP + ":" + port;
     try {
       initRMI();
-      host = new JavaRMIHost(this);
 
-      // start / reuse registry on <port>
       try {
-        LocateRegistry.createRegistry(port);
-        int objectPort = port + 10000;
-        Remote stub = UnicastRemoteObject.exportObject(host, objectPort);
-        LocateRegistry.getRegistry(port).rebind("RMIImpl", stub);
+        LocateRegistry.createRegistry(port); // registry on <port>
       } catch (ExportException ignore) {
-        try {
-          System.out.println("error during creation");
-          // If registry already exists, just rebind:
-          LocateRegistry.getRegistry(port).rebind("RMIImpl", host);
-        } catch (RemoteException re) {
-          System.err.println("[RMIUnderlay] Error while getting registry at port " + port);
-          re.printStackTrace();
-        }
-
+        // already running
       }
+
+      int objectPort = port + 10000; // fixed object port per node
+      host = new JavaRMIHost(this, objectPort);
+
+      LocateRegistry.getRegistry(port).rebind("RMIImpl", host);
     } catch (RemoteException e) {
-      System.err.println("[RMIUnderlay] Error while creating/binding registry at port " + port);
+      System.err.println("[RMIUnderlay] Error while creating registry at port " + port);
       e.printStackTrace();
     }
     logger.info("Rebinding Successful");
@@ -69,11 +61,13 @@ public class RMIUnderlay extends Underlay {
 
   protected void initRMI() {
     try {
-      String existing = System.getProperty("java.rmi.server.hostname");
-      String ipToUse = (existing != null && !existing.isEmpty()) ? existing : IP;
-      System.setProperty("java.rmi.server.hostname", ipToUse);
+      String adv = System.getProperty("java.rmi.server.hostname");
+      if (adv == null || adv.isEmpty()) {
+        adv = IP; // Util.grabIP()
+        System.setProperty("java.rmi.server.hostname", adv);
+      }
       System.setProperty("java.rmi.server.useLocalHostname", "false");
-      System.out.println("RMI Server proptery set. Inet4Address: " + ipToUse + ":" + port);
+      System.out.println("RMI Server proptery set. Inet4Address: " + adv + ":" + port);
     } catch (Exception e) {
       System.err.println(e);
       System.err.println("Exception in initialization. Please try running the program again.");
