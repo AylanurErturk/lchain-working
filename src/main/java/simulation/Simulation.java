@@ -11,35 +11,61 @@ import util.Util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class Simulation {
 
-	public static void startSimulation(Parameters params, int nodeCount ,int iterations, int pace){
+	public static void startSimulation(Parameters params, int nodeCount, int iterations, int pace) {
 		try {
-			Random rnd = new Random();
 			ArrayList<LightChainNode> nodes = new ArrayList<>();
 			LightChainNode initialNode = null;
-			int numFailures;
-			for(int i = 0 ; i < nodeCount ; i++){
-				try{
-					int port = rnd.nextInt(65535);
+			Set<Integer> taken = ConcurrentHashMap.newKeySet(); // track chosen ports to avoid collisions
+
+			final int REG_MIN = 20000, REG_MAX = 45000;
+
+			for (int i = 0; i < nodeCount; i++) {
+				try {
+					int registryPort = findFreePort(REG_MIN, REG_MAX, taken);
+					taken.add(registryPort);
+
+					// Prefer objectPort = registryPort + 10000, else find another free one
+					int proposedObject = clampPort(registryPort + 10000);
+					int objectPort;
+					if (proposedObject >= 1024 && !taken.contains(proposedObject)) {
+						// try binding to verify it’s free
+						try (ServerSocket s = new ServerSocket()) {
+							s.setReuseAddress(true);
+							s.bind(new InetSocketAddress("0.0.0.0", proposedObject));
+							objectPort = proposedObject;
+						}
+					} else {
+						// fallback: pick any other free port (still predictable per node)
+						objectPort = findFreePort(45001, 60000, taken);
+					}
+					taken.add(objectPort);
+
+					Underlay underlay = new RMIUnderlay(registryPort, objectPort);
+
 					LightChainNode node;
-					Underlay underlay = new RMIUnderlay(port);
-					if(i == 0){
-						node = new LightChainNode(params, port, Const.DUMMY_INTRODUCER, true, underlay);
+					if (i == 0) {
+						node = new LightChainNode(params, registryPort, Const.DUMMY_INTRODUCER, true, underlay);
 						initialNode = node;
 					} else {
-						node = new LightChainNode(params, port, initialNode.getAddress(), false, underlay);
+						node = new LightChainNode(params, registryPort, initialNode.getAddress(), false, underlay);
 					}
 					nodes.add(node);
-				}catch(Exception e){
-					i--;
+				} catch (Exception e) {
+					i--; // retry this index
+
 					continue;
 				}
 			}
@@ -56,25 +82,24 @@ public class Simulation {
 				sim.start();
 			}
 			latch.await();
-			
 
 			long endTime = System.currentTimeMillis();
 			Util.log("the lock could not be obtained " + LookupTable.lockFailureCount + " times");
-			Util.log("Simulation Done. Time Taken " +(endTime - startTime)+ " ms");
-			
+			Util.log("Simulation Done. Time Taken " + (endTime - startTime) + " ms");
+
 			processData(map, iterations);
 
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}   }
+		}
+	}
 
-
-	private static void processData(ConcurrentHashMap<NodeInfo, SimLog> map,int iterations) {
+	private static void processData(ConcurrentHashMap<NodeInfo, SimLog> map, int iterations) {
 		processTransactions(map, iterations);
 		processMineAttempts(map, iterations);
 	}
 
-	private static void processMineAttempts(ConcurrentHashMap<NodeInfo, SimLog> map,int iterations) {
+	private static void processMineAttempts(ConcurrentHashMap<NodeInfo, SimLog> map, int iterations) {
 
 		try {
 			String logPath = System.getProperty("user.dir") + File.separator + "Logs" + File.separator
@@ -97,7 +122,7 @@ public class Simulation {
 				List<MineAttemptLog> validMine = log.getValidMineAttemptLog();
 				List<MineAttemptLog> failedMine = log.getFailedMineAttemptLog();
 
-				sb.append(cur.getNumID() + "," + log.getMode()+",");
+				sb.append(cur.getNumID() + "," + log.getMode() + ",");
 				for (int i = 0; i < validMine.size(); i++) {
 					if (i != 0)
 						sb.append(",,");
@@ -110,7 +135,7 @@ public class Simulation {
 				}
 				sb.append('\n');
 			}
-			double successRate = (double)successSum / (1.0 * iterations * map.keySet().size()) * 100;
+			double successRate = (double) successSum / (1.0 * iterations * map.keySet().size()) * 100;
 			sb.append("Success Rate = " + successRate + "\n");
 
 			writer.write(sb.toString());
@@ -137,7 +162,7 @@ public class Simulation {
 
 			sb.append("NumID," + "Honest," + "Transaction Trials," + "Transaction Success,"
 					+ "Transaction time(per)," + "Authenticated count," + "Sound count," + "Correct count,"
-					+ "Has Balance count," + "Successful,"  +  "Timer Per Validator(ms)\n");
+					+ "Has Balance count," + "Successful," + "Timer Per Validator(ms)\n");
 
 			int successSum = 0;
 
@@ -160,7 +185,7 @@ public class Simulation {
 				}
 				sb.append('\n');
 			}
-			double successRate = (double)(successSum * 100.0) / (1.0 * iterations * map.keySet().size());
+			double successRate = (double) (successSum * 100.0) / (1.0 * iterations * map.keySet().size());
 			sb.append("Success Rate = " + successRate + "\n");
 			writer.write(sb.toString());
 			writer.close();
@@ -169,4 +194,23 @@ public class Simulation {
 		}
 
 	}
+
+	private static int findFreePort(int min, int max, Set<Integer> reserved) throws IOException {
+		for (int p = min; p <= max; p++) {
+			if (reserved.contains(p))
+				continue;
+			try (ServerSocket s = new ServerSocket()) {
+				s.setReuseAddress(true);
+				s.bind(new InetSocketAddress("0.0.0.0", p));
+				return p;
+			} catch (IOException ignore) {
+			}
+		}
+		throw new IOException("No free port in range " + min + "-" + max);
+	}
+
+	private static int clampPort(int p) {
+		return (p > 65535 ? (p % 65536) : p);
+	}
+
 }
