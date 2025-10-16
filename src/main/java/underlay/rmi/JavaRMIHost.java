@@ -1,4 +1,3 @@
-// JavaRMIHost.java
 package underlay.rmi;
 
 import underlay.requests.GenericRequest;
@@ -14,13 +13,13 @@ public class JavaRMIHost extends UnicastRemoteObject implements RMIService {
 
   // NEW: export on a fixed port
   public JavaRMIHost(RMIUnderlay underlay, int objectPort) throws RemoteException {
-    super(objectPort);             
+    super(objectPort);              // <-- fixed export port here
     this.underlay = underlay;
   }
 
-
+  // (optional) keep the old ctor if other code uses it
   public JavaRMIHost(RMIUnderlay underlay) throws RemoteException {
-    this(underlay, 0);             
+    this(underlay, 0);              // ephemeral (not used after we change RMIUnderlay)
   }
 
   public GenericResponse answer(GenericRequest req) throws FileNotFoundException {
