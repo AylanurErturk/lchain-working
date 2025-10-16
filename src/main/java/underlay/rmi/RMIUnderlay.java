@@ -41,15 +41,15 @@ public class RMIUnderlay extends Underlay {
     this.address = IP + ":" + registryPort;
     logger = Logger.getLogger("" + registryPort);
 
-
     initRMI();
-
     try {
       try { LocateRegistry.createRegistry(registryPort); }
       catch (ExportException ignore) { /* already exists */ }
 
-      host = new JavaRMIHost(this, objectPort);      // <-- fixed object port
+      host = new JavaRMIHost(this, objectPort); // <-- fixed export port
+
       LocateRegistry.getRegistry(registryPort).rebind("RMIImpl", host);
+      System.out.println("Exported RMIImpl on objectPort=" + objectPort);
     } catch (RemoteException e) {
       System.err.println("[RMIUnderlay] Error while creating registry at port " + registryPort);
       e.printStackTrace();
@@ -57,7 +57,7 @@ public class RMIUnderlay extends Underlay {
     Logger.getLogger("" + registryPort).info("Rebinding Successful");
   }
 
- 
+  
   protected void initRMI() {
     String adv = System.getProperty("java.rmi.server.hostname");
     if (adv == null || adv.isEmpty()) {
@@ -68,6 +68,7 @@ public class RMIUnderlay extends Underlay {
     System.out.println("RMI Server proptery set. Inet4Address: " + adv + ":" + registryPort +
                        " (objectPort=" + objectPort + ")");
   }
+
 
 
   public GenericResponse sendMessage(GenericRequest req, String targetAddress) {
