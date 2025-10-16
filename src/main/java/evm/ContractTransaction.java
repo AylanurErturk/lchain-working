@@ -73,7 +73,7 @@ public class ContractTransaction extends vmbase {
         byte[] data = merge(code, args);
         byte[] contractAddress = HashUtil.calcNewAddress(address, nonce);
         Transaction transaction = new TransactionMock(true, address, contractAddress, nonce, value, data, gas, gasPrice);
-        TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore);
+        TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore, isStaticCall);
         TransactionReceipt receipt = executor.run();
         return contractAddress;
     }
@@ -97,7 +97,7 @@ public class ContractTransaction extends vmbase {
             byte[] data = ByteArrayUtil.merge(Arrays.copyOf(method, 4), DataWord.of(toSend).getData());
 
             Transaction transaction = new TransactionMock(false, caller, contractAddress1, nonce1, value, data, gas, gasPrice);
-            TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore);
+            TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore, isStaticCall);
             TransactionReceipt receipt = executor.run();
             int res = Integer.parseInt(Hex.toHexString(receipt.getReturnData()));
             logger.debug("output from contract: "+res);
@@ -129,7 +129,7 @@ public class ContractTransaction extends vmbase {
             byte[] data = ByteArrayUtil.merge(Arrays.copyOf(method, 4),DataWord.of(_Nmode).getData() ,DataWord.of(_Tkn).getData(), DataWord.of(_Psell).getData());
 
             Transaction transaction = new TransactionMock(false, caller, contractAddress2, nonce1, value, data, gas, gasPrice);
-            TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore);
+            TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore, isStaticCall);
             TransactionReceipt receipt = executor.run();
             logger.debug("\n reciept string: "+receipt.toString());
             String res = Hex.toHexString(receipt.getReturnData());

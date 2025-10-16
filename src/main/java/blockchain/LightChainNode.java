@@ -849,7 +849,6 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
           mineAttempt();
         }
       }
-      logger.info("Done.");
     } catch (Exception e) {
       e.printStackTrace();
     }
