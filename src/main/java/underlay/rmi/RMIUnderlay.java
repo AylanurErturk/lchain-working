@@ -26,7 +26,7 @@ import java.rmi.server.ExportException;
 public class RMIUnderlay extends Underlay {
 
   private String IP;
-  private int port;
+  private int port;       
   private String address;
   JavaRMIHost host;
 
@@ -37,22 +37,46 @@ public class RMIUnderlay extends Underlay {
     this.port = port;
     this.address = IP + ":" + port;
     try {
-      initRMI();
-      host = new JavaRMIHost(this);
-      LocateRegistry.createRegistry(port).rebind("RMIImpl", host);
-    } catch (ExportException ee) {
+      initRMI(); // will respect -Djava.rmi.server.hostname if set
+
+      // start / reuse registry on <port>
       try {
-        System.out.println("error during creation");
-        LocateRegistry.getRegistry(port).rebind("RMIImpl", host);
-      } catch (RemoteException re) {
-        System.err.println("[RMIUnderlay] Error while getting registry at port " + port);
-        re.printStackTrace();
+        LocateRegistry.createRegistry(port);
+      } catch (ExportException ignore) {
+        // already running
       }
-    } catch (RemoteException e){
-      System.err.println("[RMIUnderlay] Error while creating registry at port " + port);
+
+      // FIXED remote object port (separate from the registry port)
+      int objectPort = port + 10000;
+
+      // export JavaRMIHost on the fixed port
+      host = new JavaRMIHost(this, objectPort);
+
+      // bind the *exported* stub into the registry
+      LocateRegistry.getRegistry(port).rebind("RMIImpl", host);
+
+    } catch (RemoteException e) {
+      System.err.println("[RMIUnderlay] Error while creating/binding registry at port " + port);
       e.printStackTrace();
     }
     logger.info("Rebinding Successful");
+  }
+
+  protected void initRMI() {
+    try {
+      // Respect externally provided hostname; fall back to Util.grabIP()
+      String adv = System.getProperty("java.rmi.server.hostname");
+      if (adv == null || adv.isEmpty()) {
+        adv = IP;
+        System.setProperty("java.rmi.server.hostname", adv);
+      }
+      System.setProperty("java.rmi.server.useLocalHostname", "false");
+      System.out.println("RMI Server proptery set. Inet4Address: " + adv + ":" + port);
+    } catch (Exception e) {
+      System.err.println(e);
+      System.err.println("Exception in initialization. Please try running the program again.");
+      System.exit(0);
+    }
   }
 
   public GenericResponse sendMessage(GenericRequest req, String targetAddress){
@@ -204,17 +228,7 @@ public class RMIUnderlay extends Underlay {
   }
 
   /** This method initializes all the RMI system properties required for proper functionality */
-  protected void initRMI() {
-    try {
-      System.setProperty("java.rmi.server.hostname", IP);
-      System.setProperty("java.rmi.server.useLocalHostname", "false");
-      System.out.println("RMI Server proptery set. Inet4Address: " + IP + ":" + port);
-    } catch (Exception e) {
-      System.err.println(e);
-      System.err.println("Exception in initialization. Please try running the program again.");
-      System.exit(0);
-    }
-  }
+  
 
   /** Terminates the Java RMI underlay service. */
   public boolean terminate() {
