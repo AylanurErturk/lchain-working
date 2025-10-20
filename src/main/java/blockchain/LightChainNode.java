@@ -692,9 +692,9 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       int tIdx = prevBlk.getIndex();
       int bIdx = thisBlk.getIndex();
 
-      if ((tIdx <= bIdx) && tIdx != 0) logger.debug("Transaction not sound, Prev: " + tIdx + ", Latest: " + bIdx);
+      if (tIdx <= bIdx) logger.debug("Transaction not sound, Prev: " + tIdx + ", Latest: " + bIdx);
       else logger.debug("Transaction is sound");
-      return true;
+      return tIdx > bIdx;
     } catch (Exception e) {
       e.printStackTrace();
       return false;
