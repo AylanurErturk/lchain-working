@@ -474,7 +474,7 @@ public class SkipNode implements SkipGraphNode {
                 NodeInfoListResponse response = NodeInfoListResponseOf(underlay.sendMessage(
                         new SearchNumIDRequest(lookup.get(num, level, Const.RIGHT).getNumID(), targetInt, level, lst),
                         lookup.get(num, level, Const.RIGHT).getAddress()));
-                int bytes = sizeOf(response);
+                int bytes = sizeOf(new SearchNumIDRequest(lookup.get(num, level, Const.RIGHT).getNumID(), targetInt, level, lst));
                 logger.info("Size is " + bytes + "B");
                 return response.result;
             } catch (StackOverflowError e) {
@@ -499,7 +499,7 @@ public class SkipNode implements SkipGraphNode {
                         new SearchNumIDRequest(lookup.get(num, level, Const.LEFT).getNumID(), targetInt, level, lst),
                         lookup.get(num, level, Const.LEFT).getAddress()));
 
-                int bytes = sizeOf(response);
+                int bytes = sizeOf(new SearchNumIDRequest(lookup.get(num, level, Const.LEFT).getNumID(), targetInt, level, lst));
                 logger.info("Size is " + bytes + "B");
                 return response.result;
             } catch (StackOverflowError e) {
