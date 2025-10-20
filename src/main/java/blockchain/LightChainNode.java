@@ -22,6 +22,7 @@ import util.Util;
 import java.io.FileNotFoundException;
 import java.security.PublicKey;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static underlay.responses.PublicKeyResponse.PublicKeyResponseOf;
 import static underlay.responses.SignatureResponse.SignatureResponseOf;
@@ -827,6 +828,38 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
 
   public boolean getMode() {
     return mode;
+  }
+
+  public SimLog startSimSync(int numTransactions, int pace) {
+    simLog = new SimLog(Const.HONEST);
+    ThreadLocalRandom rnd = ThreadLocalRandom.current();
+
+    for (int i = 0; i < numTransactions; i++) {
+      try {
+        Thread.sleep(rnd.nextInt(500) + 500);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(ie);
+      }
+
+      logger.debug("Making Transaction ..." +i);
+      makeTransaction(Util.getRandomString(135));
+
+      try {
+        Thread.sleep(rnd.nextInt(500) + 500);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(ie);
+      }
+
+      logger.debug("Mining ..." +i);
+      Block b = mineAttempt();
+      if (b == null)
+        logger.info("block is null!");
+      logger.debug("Done mining.");
+    }
+    logger.debug("returning simlog");
+    return simLog;
   }
 
   // TODO: decide on keeping or removing those after refactoring simulation
