@@ -471,10 +471,19 @@ public class SkipNode implements SkipGraphNode {
             }
             // delegate the search to the right neighbor
             try {
-                NodeInfoListResponse response = NodeInfoListResponseOf(underlay.sendMessage(
-                        new SearchNumIDRequest(lookup.get(num, level, Const.RIGHT).getNumID(), targetInt, level, lst),
-                        lookup.get(num, level, Const.RIGHT).getAddress()));
-                int bytes = sizeOf(new SearchNumIDRequest(lookup.get(num, level, Const.RIGHT).getNumID(), targetInt, level, lst));
+                SearchNumIDRequest request = new SearchNumIDRequest(
+                        lookup.get(num, level, Const.RIGHT).getNumID(),
+                        targetInt,
+                        level,
+                        lst);
+
+                // Measure its serialized size
+                int bytes = sizeOf(request);
+                logger.info("Request size =  " + bytes + " bytes, list length = " + lst.size());
+
+                // Send it
+                NodeInfoListResponse response = NodeInfoListResponseOf(
+                        underlay.sendMessage(request, lookup.get(num, level, Const.RIGHT).getAddress()));
                 logger.info("Size is " + bytes + "B");
                 return response.result;
             } catch (StackOverflowError e) {
@@ -495,11 +504,19 @@ public class SkipNode implements SkipGraphNode {
                 return lst;
             // delegate the search to the left neighbor
             try {
-                NodeInfoListResponse response = NodeInfoListResponseOf(underlay.sendMessage(
-                        new SearchNumIDRequest(lookup.get(num, level, Const.LEFT).getNumID(), targetInt, level, lst),
-                        lookup.get(num, level, Const.LEFT).getAddress()));
+                SearchNumIDRequest request = new SearchNumIDRequest(
+                        lookup.get(num, level, Const.LEFT).getNumID(),
+                        targetInt,
+                        level,
+                        lst);
 
-                int bytes = sizeOf(new SearchNumIDRequest(lookup.get(num, level, Const.LEFT).getNumID(), targetInt, level, lst));
+                // Measure its serialized size
+                int bytes = sizeOf(request);
+                logger.info("Request size =  " + bytes + " bytes, list length = " + lst.size());
+
+                // Send it
+                NodeInfoListResponse response = NodeInfoListResponseOf(
+                        underlay.sendMessage(request, lookup.get(num, level, Const.LEFT).getAddress()));
                 logger.info("Size is " + bytes + "B");
                 return response.result;
             } catch (StackOverflowError e) {
