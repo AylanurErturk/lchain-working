@@ -75,13 +75,18 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
 
     // adds values of numID and nameID to lookup table
     NodeInfo peer = new NodeInfo(address, numID, nameID);
-    addPeerNode(peer);
+    
 
     this.underlay = underlay;
     underlay.setLightChainNode(this);
+    if (isInitial) {
+      addPeerNode(peer);
+    }
+    
 
     if (!isInitial) {
       insertNode(peer);
+      addPeerNode(peer);
     }
 
     view.updateToken(getNumID(), this.token);
