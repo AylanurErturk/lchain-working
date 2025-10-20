@@ -314,14 +314,20 @@ public class SkipNode implements SkipGraphNode {
 
             if (direction == Const.RIGHT) {
 
-                if (!lookup.isLockAvailable(nodeNumID))
-                    wait(new Random().nextInt(900) + 100);
+                if (!lookup.isLockAvailable(nodeNumID)){
+                    try {
+                        Thread.sleep(new Random().nextInt(900) + 100);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                    
 
                 NodeInfo rNode = lookup.get(nodeNumID, level, direction);
                 if (rNode == null)
                     return null;
                 NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new InsertSearchRequest(level, direction, rNode.getNumID(), target), rNode.getAddress()));
-                return response.result;
+                return (response != null) ? response.result : null;
             } else {
 
                 // If search is to the left then delegate the search left neighbor if it exists
@@ -331,7 +337,7 @@ public class SkipNode implements SkipGraphNode {
                 if (lNode == null)
                     return null;
                 NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new InsertSearchRequest(level, direction, lNode.getNumID(), target), lNode.getAddress()));
-                return response.result;
+                return (response != null) ? response.result : null;
 
             }
         } catch (Exception e) {
