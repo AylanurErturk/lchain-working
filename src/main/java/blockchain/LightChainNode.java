@@ -838,6 +838,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     Random rnd = new Random();
     try {
       for (int i = 0; i < numTransactions; i++) {
+        logger.debug("Iteration: " +i);
         int randomWait = rnd.nextInt(500) + 500;
         Thread.sleep(randomWait);
         logger.debug("Making Transaction ...");
