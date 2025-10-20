@@ -42,10 +42,11 @@ public class SkipNode implements SkipGraphNode {
     // TODO: fork-resolving mechanism unimplemented
     // TODO: bootstrapping unimplemented
 
-
     /**
-     * This version of the constructor is used as long as LightChainNode extends SkipNode
-     * Because it defers RMI binding and insertion task to LightChainNode after setting
+     * This version of the constructor is used as long as LightChainNode extends
+     * SkipNode
+     * Because it defers RMI binding and insertion task to LightChainNode after
+     * setting
      * the correct information (numID and nameID
      *
      * @param introducer
@@ -79,7 +80,8 @@ public class SkipNode implements SkipGraphNode {
      * able to function:
      *
      * @param introducer the node that helps in inserting the current node
-     * @param isInitial  Indicator that this node is an initial node in the skipGraph
+     * @param isInitial  Indicator that this node is an initial node in the
+     *                   skipGraph
      */
     public SkipNode(NodeConfig config, String introducer, boolean isInitial, Underlay underlay) {
 
@@ -98,7 +100,6 @@ public class SkipNode implements SkipGraphNode {
         }
 
     }
-
 
     /**
      * Deletes a data node with a given numerical ID
@@ -119,17 +120,20 @@ public class SkipNode implements SkipGraphNode {
                     continue;
                     // if left is null, then update right
                 } else if (lNode == null) {
-                    underlay.sendMessage(new SetLeftNodeRequest(rNode.getNumID(), j, lNode, thisNode), rNode.getAddress());
+                    underlay.sendMessage(new SetLeftNodeRequest(rNode.getNumID(), j, lNode, thisNode),
+                            rNode.getAddress());
 
                     // if right is null, update left
                 } else if (rNode == null) {
-                    underlay.sendMessage(new SetRightNodeRequest(lNode.getNumID(), j, rNode, thisNode), lNode.getAddress());
-
+                    underlay.sendMessage(new SetRightNodeRequest(lNode.getNumID(), j, rNode, thisNode),
+                            lNode.getAddress());
 
                     // otherwise update both sides and connect them to each other.
                 } else {
-                    underlay.sendMessage(new SetLeftNodeRequest(rNode.getNumID(), j, lNode, thisNode), rNode.getAddress());
-                    underlay.sendMessage(new SetRightNodeRequest(lNode.getNumID(), j, rNode, thisNode), lNode.getAddress());
+                    underlay.sendMessage(new SetLeftNodeRequest(rNode.getNumID(), j, lNode, thisNode),
+                            rNode.getAddress());
+                    underlay.sendMessage(new SetRightNodeRequest(lNode.getNumID(), j, rNode, thisNode),
+                            lNode.getAddress());
                 }
             }
             // Delete the node from the lookup.
@@ -159,7 +163,8 @@ public class SkipNode implements SkipGraphNode {
                 closestNode = searchByNumID(insertedNode.getNumID());
             } else {
                 isInserted = true;
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new SearchByNumIDRequest(insertedNode.getNumID()), introducer));
+                NodeInfoResponse response = NodeInfoResponseOf(
+                        underlay.sendMessage(new SearchByNumIDRequest(insertedNode.getNumID()), introducer));
                 closestNode = response.result;
             }
 
@@ -183,7 +188,8 @@ public class SkipNode implements SkipGraphNode {
 
             // if the closest node is to the right
             if (insertedNode.getNumID() < closestNodeNumID) {
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new GetLeftNodeRequest(Const.ZERO_LEVEL, closestNodeNumID), closestNode.getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new GetLeftNodeRequest(Const.ZERO_LEVEL, closestNodeNumID), closestNode.getAddress()));
                 leftNode = response.result;
 
                 rightNode = Util.assignNode(closestNode);
@@ -191,18 +197,23 @@ public class SkipNode implements SkipGraphNode {
                 rightNodeNumID = rightNode.getNumID();
                 // insert the current node in the lookup table of my left node if it exists
                 if (leftNode != null) {
-                    IntegerResponse leftNodeNumIDResponse = IntegerResponseOf(underlay.sendMessage(new GetNumIDRequest(), leftNode.getAddress()));
+                    IntegerResponse leftNodeNumIDResponse = IntegerResponseOf(
+                            underlay.sendMessage(new GetNumIDRequest(), leftNode.getAddress()));
                     leftNodeNumID = leftNodeNumIDResponse.result;
                     // null because the lookup table is empty
                     lookup.put(insertedNode.getNumID(), Const.ZERO_LEVEL, Const.LEFT, Util.assignNode(leftNode), null);
-                    underlay.sendMessage(new SetRightNodeRequest(leftNodeNumID, Const.ZERO_LEVEL, insertedNode, rightNode), leftNode.getAddress());
+                    underlay.sendMessage(
+                            new SetRightNodeRequest(leftNodeNumID, Const.ZERO_LEVEL, insertedNode, rightNode),
+                            leftNode.getAddress());
                 }
                 lookup.put(insertedNode.getNumID(), Const.ZERO_LEVEL, Const.RIGHT, Util.assignNode(rightNode), null);
                 // insert the current node in the lookup table of its right neighbor
-                underlay.sendMessage(new SetLeftNodeRequest(closestNodeNumID, Const.ZERO_LEVEL, insertedNode, leftNode), closestNode.getAddress());
+                underlay.sendMessage(new SetLeftNodeRequest(closestNodeNumID, Const.ZERO_LEVEL, insertedNode, leftNode),
+                        closestNode.getAddress());
 
             } else { // if the closest node is to the left
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new GetRightNodeRequest(Const.ZERO_LEVEL, closestNodeNumID), closestNode.getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new GetRightNodeRequest(Const.ZERO_LEVEL, closestNodeNumID), closestNode.getAddress()));
                 rightNode = response.result;
 
                 leftNode = closestNode;
@@ -211,13 +222,17 @@ public class SkipNode implements SkipGraphNode {
                 lookup.put(insertedNode.getNumID(), Const.ZERO_LEVEL, Const.LEFT, Util.assignNode(leftNode), null);
                 // insert the current node in the lookup table of its right neighbor
 
-                underlay.sendMessage(new SetRightNodeRequest(closestNodeNumID, Const.ZERO_LEVEL, insertedNode, rightNode), closestNode.getAddress());
+                underlay.sendMessage(
+                        new SetRightNodeRequest(closestNodeNumID, Const.ZERO_LEVEL, insertedNode, rightNode),
+                        closestNode.getAddress());
                 if (rightNode != null) { // insert current node in the lookup table of its right neighbor if it exists
                     rightNodeNumID = rightNode.getNumID();
                     // null because the lookup table is empty
                     lookup.put(insertedNode.getNumID(), Const.ZERO_LEVEL, Const.RIGHT, Util.assignNode(rightNode),
                             null);
-                    underlay.sendMessage(new SetLeftNodeRequest(rightNodeNumID, Const.ZERO_LEVEL, insertedNode, leftNode), rightNode.getAddress());
+                    underlay.sendMessage(
+                            new SetLeftNodeRequest(rightNodeNumID, Const.ZERO_LEVEL, insertedNode, leftNode),
+                            rightNode.getAddress());
                 }
             }
 
@@ -242,7 +257,8 @@ public class SkipNode implements SkipGraphNode {
                     leftNodeNumID = Const.UNASSIGNED_INT;
 
                     if (lft != null) {
-                        underlay.sendMessage(new SetRightNodeRequest(lft.getNumID(), level + 1, insertedNode, null), lft.getAddress());
+                        underlay.sendMessage(new SetRightNodeRequest(lft.getNumID(), level + 1, insertedNode, null),
+                                lft.getAddress());
 
                         leftNode = lft;
                         leftNodeNumID = lft.getNumID();
@@ -250,7 +266,8 @@ public class SkipNode implements SkipGraphNode {
                 }
                 if (rightNode != null) {
                     NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
-                            new InsertSearchRequest(level, Const.RIGHT, rightNodeNumID, insertedNode.getNameID()), rightNode.getAddress()));
+                            new InsertSearchRequest(level, Const.RIGHT, rightNodeNumID, insertedNode.getNameID()),
+                            rightNode.getAddress()));
                     NodeInfo rit = response.result;
 
                     lookup.put(insertedNode.getNumID(), level + 1, Const.RIGHT, Util.assignNode(rit), null);
@@ -262,7 +279,8 @@ public class SkipNode implements SkipGraphNode {
                     rightNodeNumID = Const.UNASSIGNED_INT;
 
                     if (rit != null) {
-                        underlay.sendMessage(new SetLeftNodeRequest(rit.getNumID(), level + 1, insertedNode, null), rit.getAddress());
+                        underlay.sendMessage(new SetLeftNodeRequest(rit.getNumID(), level + 1, insertedNode, null),
+                                rit.getAddress());
 
                         rightNode = rit;
                         rightNodeNumID = rit.getNumID();
@@ -280,7 +298,6 @@ public class SkipNode implements SkipGraphNode {
         }
     }
 
-
     /**
      * A helper method for Insert(), inserts a node recursively per level.
      *
@@ -290,7 +307,7 @@ public class SkipNode implements SkipGraphNode {
      * @param nodeNumID The numerical ID of the node at which the search has arrived
      * @param target    the name ID of the inserted node.
      * @return Right neighbor if direction is RIGHT, and left neighbor if direction
-     * is LEFT
+     *         is LEFT
      * @see SkipGraphNode#insertSearch(int, int, int, java.lang.String)
      */
     public NodeInfo insertSearch(int level, int direction, int nodeNumID, String target) {
@@ -320,7 +337,8 @@ public class SkipNode implements SkipGraphNode {
                 NodeInfo rNode = lookup.get(nodeNumID, level, direction);
                 if (rNode == null)
                     return null;
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new InsertSearchRequest(level, direction, rNode.getNumID(), target), rNode.getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new InsertSearchRequest(level, direction, rNode.getNumID(), target), rNode.getAddress()));
                 return response.result;
             } else {
 
@@ -330,7 +348,8 @@ public class SkipNode implements SkipGraphNode {
                 NodeInfo lNode = lookup.get(nodeNumID, level, direction);
                 if (lNode == null)
                     return null;
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new InsertSearchRequest(level, direction, lNode.getNumID(), target), lNode.getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new InsertSearchRequest(level, direction, lNode.getNumID(), target), lNode.getAddress()));
                 return response.result;
 
             }
@@ -362,7 +381,7 @@ public class SkipNode implements SkipGraphNode {
      *
      * @param searchTarget numerical ID of target of search
      * @return NodeInfo of the target node if found, or closest node in case it was
-     * not found
+     *         not found
      */
     public NodeInfo searchByNumID(int searchTarget) {
         logger.debug("Searching for " + searchTarget);
@@ -373,8 +392,10 @@ public class SkipNode implements SkipGraphNode {
 
         } catch (IllegalMonitorStateException | NullPointerException e) {
             return null;
-            //IllegalMonitorStateException: when the flag node is deleted and reinserted by another node
-            //NullPointerException: when the flag node is deleted and the other node did not insert it yet
+            // IllegalMonitorStateException: when the flag node is deleted and reinserted by
+            // another node
+            // NullPointerException: when the flag node is deleted and the other node did
+            // not insert it yet
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -389,7 +410,7 @@ public class SkipNode implements SkipGraphNode {
      * @param searchTarget numerical ID to be searched
      * @param lst          the list which will collect the nodes on the search path
      * @return a list containing all nodes that have been encountered on the search
-     * path
+     *         path
      */
     public List<NodeInfo> searchByNumIDHelper(int searchTarget, List<NodeInfo> lst) {
         try {
@@ -425,7 +446,7 @@ public class SkipNode implements SkipGraphNode {
         if (numID != lookup.bufferNumID()) {
             // get the data node (or main node) that is closest to the target search
             num = getBestNum(targetInt);
-//			num = numID;
+            // num = numID;
             // Add the current node's info to the search list
         } else {
             logger.debug("Accessing Buffered Node " + port + " ...");
@@ -451,8 +472,10 @@ public class SkipNode implements SkipGraphNode {
             // delegate the search to the right neighbor
             try {
                 NodeInfoListResponse response = NodeInfoListResponseOf(underlay.sendMessage(
-                        new SearchNumIDRequest(lookup.get(num, level, Const.RIGHT).getNumID(), targetInt, level, lst)
-                        , lookup.get(num, level, Const.RIGHT).getAddress()));
+                        new SearchNumIDRequest(lookup.get(num, level, Const.RIGHT).getNumID(), targetInt, level, lst),
+                        lookup.get(num, level, Const.RIGHT).getAddress()));
+                int bytes = sizeOf(response);
+                logger.info("Size is " + bytes + "B");
                 return response.result;
             } catch (StackOverflowError e) {
                 return null;
@@ -473,8 +496,11 @@ public class SkipNode implements SkipGraphNode {
             // delegate the search to the left neighbor
             try {
                 NodeInfoListResponse response = NodeInfoListResponseOf(underlay.sendMessage(
-                        new SearchNumIDRequest(lookup.get(num, level, Const.LEFT).getNumID(), targetInt, level, lst)
-                        , lookup.get(num, level, Const.LEFT).getAddress()));
+                        new SearchNumIDRequest(lookup.get(num, level, Const.LEFT).getNumID(), targetInt, level, lst),
+                        lookup.get(num, level, Const.LEFT).getAddress()));
+
+                int bytes = sizeOf(response);
+                logger.info("Size is " + bytes + "B");
                 return response.result;
             } catch (StackOverflowError e) {
                 logger.error("StackOverflow", e);
@@ -512,12 +538,12 @@ public class SkipNode implements SkipGraphNode {
      * @param searchTarget name ID which we are searching for
      * @return NodeInfo of target if found, or its closest node found
      * @see SkipGraphNode#searchByNameID(java.lang.String)
-     * <p>
-     * TODO: currently, when a numID search for a value that does not exist in
-     * the skip graph occurs, the returned result depends on the side from
-     * which the search had started, if search started from the right of the
-     * target, upper bound, if search starts from left of target, lowerbound is
-     * returned
+     *      <p>
+     *      TODO: currently, when a numID search for a value that does not exist in
+     *      the skip graph occurs, the returned result depends on the side from
+     *      which the search had started, if search started from the right of the
+     *      target, upper bound, if search starts from left of target, lowerbound is
+     *      returned
      */
     public NodeInfo searchByNameID(String searchTarget) {
         try {
@@ -530,8 +556,10 @@ public class SkipNode implements SkipGraphNode {
 
             // First execute the search in the right direction and see the result it returns
             if (lookup.get(bestNum, newLevel, Const.RIGHT) != null) {
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new SearchNameRequest(lookup.get(bestNum, newLevel, Const.RIGHT).getNumID(),
-                        searchTarget, newLevel, Const.RIGHT), lookup.get(bestNum, newLevel, Const.RIGHT).getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new SearchNameRequest(lookup.get(bestNum, newLevel, Const.RIGHT).getNumID(),
+                                searchTarget, newLevel, Const.RIGHT),
+                        lookup.get(bestNum, newLevel, Const.RIGHT).getAddress()));
                 NodeInfo rightResult = response.result;
                 int commonRight = Util.commonBits(rightResult.getNameID(), searchTarget);
                 if (commonRight > newLevel)
@@ -539,8 +567,10 @@ public class SkipNode implements SkipGraphNode {
             }
             // If the desired result was not found try to search to the left
             if (lookup.get(bestNum, newLevel, Const.LEFT) != null) {
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new SearchNameRequest(lookup.get(bestNum, newLevel, Const.LEFT).getNumID(),
-                        searchTarget, newLevel, Const.LEFT), lookup.get(bestNum, newLevel, Const.LEFT).getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new SearchNameRequest(lookup.get(bestNum, newLevel, Const.LEFT).getNumID(),
+                                searchTarget, newLevel, Const.LEFT),
+                        lookup.get(bestNum, newLevel, Const.LEFT).getAddress()));
                 NodeInfo leftResult = response.result;
 
                 int commonLeft = Util.commonBits(leftResult.getNameID(), searchTarget);
@@ -592,8 +622,10 @@ public class SkipNode implements SkipGraphNode {
                 // If no more nodes in this direction return the current node
                 if (lookup.get(bestNum, level, direction) == null)
                     return ansNode;
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new SearchNameRequest(lookup.get(bestNum, level, direction).getNumID(), searchTarget, level,
-                        direction), lookup.get(bestNum, level, direction).getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new SearchNameRequest(lookup.get(bestNum, level, direction).getNumID(), searchTarget, level,
+                                direction),
+                        lookup.get(bestNum, level, direction).getAddress()));
                 return response.result;
             }
             // If the number of common bits is more than the current level
@@ -603,8 +635,10 @@ public class SkipNode implements SkipGraphNode {
             // First we start the search on the same given direction and wait for the result
             // it returns
             if (lookup.get(bestNum, newLevel, direction) != null) {
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new SearchNameRequest(lookup.get(bestNum, newLevel, direction).getNumID(), searchTarget,
-                        newLevel, direction), lookup.get(bestNum, newLevel, direction).getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new SearchNameRequest(lookup.get(bestNum, newLevel, direction).getNumID(), searchTarget,
+                                newLevel, direction),
+                        lookup.get(bestNum, newLevel, direction).getAddress()));
                 NodeInfo curNode = response.result;
 
                 int common = Util.commonBits(curNode.getNameID(), searchTarget);
@@ -614,10 +648,11 @@ public class SkipNode implements SkipGraphNode {
 
             // Continue the search on the opposite direction
             if (lookup.get(bestNum, newLevel, 1 - direction) != null) {
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new SearchNameRequest(lookup.get(bestNum, newLevel, 1 - direction).getNumID(),
-                        searchTarget, newLevel, 1 - direction), lookup.get(bestNum, newLevel, 1 - direction).getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(
+                        new SearchNameRequest(lookup.get(bestNum, newLevel, 1 - direction).getNumID(),
+                                searchTarget, newLevel, 1 - direction),
+                        lookup.get(bestNum, newLevel, 1 - direction).getAddress()));
                 NodeInfo otherNode = response.result;
-
 
                 int common = Util.commonBits(otherNode.getNameID(), searchTarget);
                 if (common > newLevel)
@@ -670,47 +705,56 @@ public class SkipNode implements SkipGraphNode {
             int ansNodeNumID = ansNode.getNumID();
 
             // get addresses of left and right nodes, as well as their numIDs
-            NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new GetLeftNodeRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
+            NodeInfoResponse response = NodeInfoResponseOf(
+                    underlay.sendMessage(new GetLeftNodeRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
             leftNode = response.result;
 
             if (leftNode != null) {
-                IntegerResponse integerResponse = IntegerResponseOf(underlay.sendMessage(new GetLeftNumIDRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
+                IntegerResponse integerResponse = IntegerResponseOf(
+                        underlay.sendMessage(new GetLeftNumIDRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
                 leftNumID = integerResponse.result;
             }
 
-            NodeInfoResponse rightNodeResponse = NodeInfoResponseOf(underlay.sendMessage(new GetRightNodeRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
+            NodeInfoResponse rightNodeResponse = NodeInfoResponseOf(
+                    underlay.sendMessage(new GetRightNodeRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
             rightNode = rightNodeResponse.result;
 
             if (rightNode != null) {
-                IntegerResponse rightNumIDResponse = IntegerResponseOf(underlay.sendMessage(new GetRightNumIDRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
+                IntegerResponse rightNumIDResponse = IntegerResponseOf(
+                        underlay.sendMessage(new GetRightNumIDRequest(maxLevels, ansNodeNumID), ansNode.getAddress()));
                 rightNumID = rightNumIDResponse.result;
             }
-
 
             // now in the last level of the skip graph, we go left and right
             while (leftNode != null) {
                 String addr = leftNode.getAddress();
-                NodeInfoResponse curNodeResponse = NodeInfoResponseOf(underlay.sendMessage(new GetNodeRequest(leftNumID), addr));
+                NodeInfoResponse curNodeResponse = NodeInfoResponseOf(
+                        underlay.sendMessage(new GetNodeRequest(leftNumID), addr));
                 NodeInfo curNode = curNodeResponse.result;
                 list.add(curNode);
-                NodeInfoResponse leftNodeResponse = NodeInfoResponseOf(underlay.sendMessage(new GetLeftNodeRequest(lookup.getMaxLevels(), leftNumID), addr));
+                NodeInfoResponse leftNodeResponse = NodeInfoResponseOf(
+                        underlay.sendMessage(new GetLeftNodeRequest(lookup.getMaxLevels(), leftNumID), addr));
                 leftNode = leftNodeResponse.result;
 
                 if (leftNode != null) {
-                    IntegerResponse leftNumIDResponse = IntegerResponseOf(underlay.sendMessage(new GetLeftNumIDRequest(lookup.getMaxLevels(), leftNumID), addr));
+                    IntegerResponse leftNumIDResponse = IntegerResponseOf(
+                            underlay.sendMessage(new GetLeftNumIDRequest(lookup.getMaxLevels(), leftNumID), addr));
                     leftNumID = leftNumIDResponse.result;
                 }
             }
             while (rightNode != null) {
                 String addr = rightNode.getAddress();
-                NodeInfoResponse curNodeResponse = NodeInfoResponseOf(underlay.sendMessage(new GetNodeRequest(rightNumID), addr));
+                NodeInfoResponse curNodeResponse = NodeInfoResponseOf(
+                        underlay.sendMessage(new GetNodeRequest(rightNumID), addr));
                 NodeInfo curNode = curNodeResponse.result;
                 list.add(curNode);
-                rightNodeResponse = NodeInfoResponseOf(underlay.sendMessage(new GetRightNodeRequest(lookup.getMaxLevels(), rightNumID), addr));
+                rightNodeResponse = NodeInfoResponseOf(
+                        underlay.sendMessage(new GetRightNodeRequest(lookup.getMaxLevels(), rightNumID), addr));
                 rightNode = rightNodeResponse.result;
 
                 if (rightNode != null) {
-                    IntegerResponse rightNumIDResponse = IntegerResponseOf(underlay.sendMessage(new GetRightNumIDRequest(lookup.getMaxLevels(), rightNumID), addr));
+                    IntegerResponse rightNumIDResponse = IntegerResponseOf(
+                            underlay.sendMessage(new GetRightNumIDRequest(lookup.getMaxLevels(), rightNumID), addr));
                     rightNumID = rightNumIDResponse.result;
                 }
 
@@ -721,7 +765,6 @@ public class SkipNode implements SkipGraphNode {
             return null;
         }
     }
-
 
     public void printLevel(int level) {
         List<NodeInfo> list = lookup.getLevel(level, peerNode);
@@ -736,7 +779,6 @@ public class SkipNode implements SkipGraphNode {
             logger.info(n.getNumID() + " " + n.getNameID() + " " + n.getClass());
         }
     }
-
 
     public void printPeerLookup() {
         lookup.printLookup(numID);
@@ -956,7 +998,8 @@ public class SkipNode implements SkipGraphNode {
             System.out.println();
             while (curNode != null) {
                 nodeList.add(curNode);
-                NodeInfoResponse response = NodeInfoResponseOf(underlay.sendMessage(new GetRightNodeRequest(0, curNode.getNumID()), curNode.getAddress()));
+                NodeInfoResponse response = NodeInfoResponseOf(
+                        underlay.sendMessage(new GetRightNodeRequest(0, curNode.getNumID()), curNode.getAddress()));
                 curNode = response.result;
             }
             System.out.println("Total number of nodes: " + nodeList.size());
@@ -988,6 +1031,14 @@ public class SkipNode implements SkipGraphNode {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    static int sizeOf(Serializable o) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(o);
+        }
+        return baos.size();
     }
 
 }
