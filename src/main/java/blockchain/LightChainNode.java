@@ -49,13 +49,15 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * @param params contains necessary information for the node to function
+   * @param params     contains necessary information for the node to function
    * @param introducer the address of the introducer node
-   * @param isInitial a flag signaling whether this node is the first node in the network
-   *     <p>TODO: add a specific LightChain config that includes Mode and remove it from params
+   * @param isInitial  a flag signaling whether this node is the first node in the
+   *                   network
+   *                   <p>
+   *                   TODO: add a specific LightChain config that includes Mode
+   *                   and remove it from params
    */
-  public LightChainNode(Parameters params, int port, String introducer, boolean isInitial, Underlay underlay)
-      {
+  public LightChainNode(Parameters params, int port, String introducer, boolean isInitial, Underlay underlay) {
     super(port, params.getLevels(), introducer, underlay);
     this.params = params;
     this.digitalSignature = new DigitalSignature();
@@ -71,7 +73,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     name = hasher.getHash(name, params.getLevels());
     super.setNameID(name);
 
-    if (isInitial) isInserted = true;
+    if (isInitial)
+      isInserted = true;
 
     // adds values of numID and nameID to lookup table
     NodeInfo peer = new NodeInfo(address, numID, nameID);
@@ -95,11 +98,15 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method goes to the tail of the blockchain and iterates over the transactions pointing at
-   * it, and then updating the entries corresponding to the owners of the transactions in the view
+   * This method goes to the tail of the blockchain and iterates over the
+   * transactions pointing at
+   * it, and then updating the entries corresponding to the owners of the
+   * transactions in the view
    * table.
    *
-   * <p>TODO: investigate storing only the index of the block in the view table instead of its numID
+   * <p>
+   * TODO: investigate storing only the index of the block in the view table
+   * instead of its numID
    */
   public View updateView() {
     try {
@@ -110,7 +117,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       String name = numToName(blk.getNumID());
       // get transactions pointing at the tail
       List<Transaction> tList = getTransactionsWithNameID(name);
-      if (tList == null) return null;
+      if (tList == null)
+        return null;
       // iterate over found transactions pointing at the blockchain
       for (int i = 0; i < tList.size(); ++i) {
         int owner = tList.get(i).getOwner();
@@ -127,9 +135,12 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method finds the latest block on the blockchain and takes its numID and uses it to find
-   * all transactions that have this numID as nameID and uses getTransactionsWithNameID() method to
-   * get such transactions, and if the number of found transactions is at least TX_MIN, the
+   * This method finds the latest block on the blockchain and takes its numID and
+   * uses it to find
+   * all transactions that have this numID as nameID and uses
+   * getTransactionsWithNameID() method to
+   * get such transactions, and if the number of found transactions is at least
+   * TX_MIN, the
    * transactions are casted into a block and the block is sent for validation.
    */
   public Block mineAttempt() {
@@ -161,14 +172,13 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       }
 
       // If there are TX_MIN transaction then add them into a new block
-      Block newBlk =
-          new Block(
-              blk.getHash(),
-              getNumID(),
-              getAddress(),
-              tList,
-              blk.getIndex() + 1,
-              params.getLevels());
+      Block newBlk = new Block(
+          blk.getHash(),
+          getNumID(),
+          getAddress(),
+          tList,
+          blk.getIndex() + 1,
+          params.getLevels());
       // send the new block for PoV validation
       logger.debug("Validating new Block ...");
 
@@ -207,18 +217,25 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     super.insertDataNode(Const.ZERO_ID, blk.getHash());
   }
 
-  /** removes the flag node pointing to the latest block that was inserted by this node */
+  /**
+   * removes the flag node pointing to the latest block that was inserted by this
+   * node
+   */
   public void removeFlagNode() {
     super.delete(Const.ZERO_ID);
   }
 
   /**
-   * This method creates a transaction of a given content and sends the transaction for validation
+   * This method creates a transaction of a given content and sends the
+   * transaction for validation
    * then returns the transaction
    *
    * @param cont content of transaction
-   *     <p>TODO: When validating a transaction as it is being rejected, attempt a constant number
-   *     of retries until it is accepted or else drop it. TODO: After inserting a transaction
+   *             <p>
+   *             TODO: When validating a transaction as it is being rejected,
+   *             attempt a constant number
+   *             of retries until it is accepted or else drop it. TODO: After
+   *             inserting a transaction
    */
   public Transaction makeTransaction(String cont) {
     try {
@@ -228,8 +245,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       while (!success && waitCount > 0) {
         Block lstBlk = getLatestBlock();
         logger.debug("Prev found: " + lstBlk.getNumID());
-        Transaction t =
-            new Transaction(lstBlk.getHash(), getNumID(), cont, getAddress(), params.getLevels());
+        Transaction t = new Transaction(lstBlk.getHash(), getNumID(), cont, getAddress(), params.getLevels());
         boolean verified = validateTransaction(t);
         if (verified) {
           insertTransaction(t);
@@ -292,7 +308,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
    * This method finds the latest block on the blockchain.
    *
    * @return the latest block on the ledger
-   *     <p>TODO: this should be refactored
+   *         <p>
+   *         TODO: this should be refactored
    */
   public Block getLatestBlock() {
     try {
@@ -303,7 +320,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       logger.debug("searching for block");
       int num = Integer.parseInt(flag.getNameID(), 2);
       NodeInfo blk = searchByNumID(num);
-      if (blk instanceof Block) return (Block) blk;
+      if (blk instanceof Block)
+        return (Block) blk;
       else {
         logger.error(
             blk.getNumID()
@@ -324,7 +342,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method gets the numID of a peer and returns its latest transactions using transaction
+   * This method gets the numID of a peer and returns its latest transactions
+   * using transaction
    * pointers
    *
    * @return the latest transaction for a particular owner
@@ -344,7 +363,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   /**
    * This function retreives transactions with a certain nameID
    *
-   * @param name the nameID for which we want to collect transactions that have it as nameID
+   * @param name the nameID for which we want to collect transactions that have it
+   *             as nameID
    * @return a list of transactions that have name as nameID
    */
   public List<Transaction> getTransactionsWithNameID(String name) {
@@ -353,16 +373,21 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     List<Transaction> tList = new ArrayList<>();
     logger.debug("found " + list.size() + " nodes");
     for (NodeInfo t : list) {
-      if (t instanceof Transaction) tList.add((Transaction) t);
-      if (tList.size() == params.getTxMin()) break;
+      if (t instanceof Transaction)
+        tList.add((Transaction) t);
+      if (tList.size() == params.getTxMin())
+        break;
     }
     return tList;
   }
 
   /**
-   * This method is called by a node to validate a block that it has created. First it gets the
-   * validators of the block, and then contacts each validator and asks them to validate the block
-   * using PoV and then gets their signatures of the hash value of the block if the validation was
+   * This method is called by a node to validate a block that it has created.
+   * First it gets the
+   * validators of the block, and then contacts each validator and asks them to
+   * validate the block
+   * using PoV and then gets their signatures of the hash value of the block if
+   * the validation was
    * successful and gets null otherwise.
    *
    * @param blk is the block to be validated
@@ -380,18 +405,31 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       // iterate over validators and ask them to validate the block
       for (int i = 0; i < validators.size(); ++i) {
         // TODO: add a dummy signedBytes value
-        SignatureResponse response = SignatureResponseOf(underlay.sendMessage(
-                new PoVRequest(blk),
-                validators.get(i).getAddress()));
-        SignedBytes signature = response.result;
+        try {
+          SignatureResponse response = SignatureResponseOf(underlay.sendMessage(
+              new PoVRequest(blk),
+              validators.get(i).getAddress()));
+          if (response == null || response.result == null) {
+            logger.warn("validateBlock: validator" + validators.get(i).getAddress()
+                + "returned no signature (timeout/conn issue)");
+            return false;
+          }
 
-        // if one validator returns null, then validation has failed
-        if (signature == null) {
-          logger.debug("Block Rejected");
+          SignedBytes signature = response.result;
+
+          // if one validator returns null, then validation has failed
+          if (signature == null) {
+            logger.debug("Block Rejected");
+            return false;
+          }
+          blk.addSignature(signature);
+        } catch (Exception e) {
+          logger.error("validateBlock: unexpected error", e);
           return false;
         }
-        blk.addSignature(signature);
+
       }
+
       // update the sigma array of the block with all the signatures
       logger.debug("Block Approved");
 
@@ -403,8 +441,10 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * The method is called by a node to validate a transaction that it has created First it gets the
-   * validators of the transaction, and then contacts each of them to get their signatures and
+   * The method is called by a node to validate a transaction that it has created
+   * First it gets the
+   * validators of the transaction, and then contacts each of them to get their
+   * signatures and
    * stores their signatures in the sigma list.
    *
    * @param t transaction to be validated
@@ -436,14 +476,18 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       // iterate over validators and use RMI to ask them to validate the transaction
       for (int i = 0; i < validators.size(); ++i) {
         SignatureResponse response = SignatureResponseOf(underlay.sendMessage(
-                new PoVRequest(t),
-                validators.get(i).getAddress()));
+            new PoVRequest(t),
+            validators.get(i).getAddress()));
         SignedBytes signature = response.result;
 
-        if (signature.isAuth()) isAuthenticated++;
-        if (signature.isCorrect()) isCorrect++;
-        if (signature.isSound()) isSound++;
-        if (signature.hasBalance()) hasBalance++;
+        if (signature.isAuth())
+          isAuthenticated++;
+        if (signature.isCorrect())
+          isCorrect++;
+        if (signature.isSound())
+          isSound++;
+        if (signature.hasBalance())
+          hasBalance++;
 
         // if a validators returns null that means the validation has failed
         if (signature.getBytes() != null) {
@@ -457,7 +501,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       validated = (numValidations >= params.getSignaturesThreshold());
       long end = System.currentTimeMillis();
 
-      if (numValidations != 0) timePerValidator /= numValidations;
+      if (numValidations != 0)
+        timePerValidator /= numValidations;
 
       simLog.logTransaction(
           validated,
@@ -468,8 +513,10 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
           end - start,
           timePerValidator);
 
-      if (validated) logger.debug("valid transaction");
-      else logger.debug("invalid transaction");
+      if (validated)
+        logger.debug("valid transaction");
+      else
+        logger.debug("invalid transaction");
 
       return validated;
     } catch (Exception e) {
@@ -479,11 +526,13 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method is used to validate a block. It checks : 1) Authenticity 2) Consistency 3)
+   * This method is used to validate a block. It checks : 1) Authenticity 2)
+   * Consistency 3)
    * Authenticity and soundness of the transactions it contains.
    *
    * @param blk is block to be validated using proof of validation
-   * @return signature of validator in case block is valid, or null if block is invalid
+   * @return signature of validator in case block is valid, or null if block is
+   *         invalid
    */
   public SignedBytes PoV(Block blk) {
     try {
@@ -491,7 +540,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       boolean isAuth = isAuthenticated(blk);
       boolean isCons = isConsistent(blk);
       boolean val = isAuth && isCons;
-      if (val == false) return new SignedBytes(null, isAuth, true, true, true);
+      if (val == false)
+        return new SignedBytes(null, isAuth, true, true, true);
       // iterate over transactions and check them one by one
       List<Transaction> ts = blk.getTransactionSet();
       for (int i = 0; i < ts.size(); ++i) {
@@ -501,9 +551,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
         }
       }
       logger.debug("Block Approved");
-      SignedBytes signedHash =
-          new SignedBytes(
-              digitalSignature.signString(blk.getHash()).getBytes(), isAuth, true, true, true);
+      SignedBytes signedHash = new SignedBytes(
+          digitalSignature.signString(blk.getHash()).getBytes(), isAuth, true, true, true);
       return signedHash;
     } catch (Exception e) {
       e.printStackTrace();
@@ -512,7 +561,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method recieves a block and checks if: 1) its hash value is generated properly 2) checks
+   * This method recieves a block and checks if: 1) its hash value is generated
+   * properly 2) checks
    * if it contains the signature of its owner
    *
    * @param blk is block whose authenticity is to be checked
@@ -527,8 +577,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
         sb.append(blk.getTransactionSet().get(i).toString());
       }
       // generate the hash value and then compare it with the block's
-      String hash =
-          hasher.getHash(blk.getPrev() + blk.getOwner() + sb.toString(), params.getLevels());
+      String hash = hasher.getHash(blk.getPrev() + blk.getOwner() + sb.toString(), params.getLevels());
       if (!hash.equals(blk.getHash())) {
         logger.debug("Hash of block not generated properly");
         return false;
@@ -538,11 +587,13 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       // retrieve the public key of the owner of the block
       PublicKey ownerPublicKey = getOwnerPublicKey(blk.getOwner());
       boolean verified = false;
-      if (ownerPublicKey == null) return false;
+      if (ownerPublicKey == null)
+        return false;
       // iterate over the sigma array looking for the signature of the owner
       for (int i = 0; i < blkSigma.size(); ++i) {
         boolean is = digitalSignature.verifyString(hash, blkSigma.get(i), ownerPublicKey);
-        if (is) verified = true;
+        if (is)
+          verified = true;
       }
       if (verified == false) {
         logger.debug("Block does not contain signature of owner");
@@ -556,9 +607,12 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * A block is said to be consistent if its prev points to the current tail of the block, so at the
-   * time of validation, validators should make sure that prev is still pointing to the tail of the
-   * blockchain, or otherwise if the tail was updated is should terminate the validation process.
+   * A block is said to be consistent if its prev points to the current tail of
+   * the block, so at the
+   * time of validation, validators should make sure that prev is still pointing
+   * to the tail of the
+   * blockchain, or otherwise if the tail was updated is should terminate the
+   * validation process.
    *
    * @param blk whose consistency is to be checked
    * @return true of block is consistent, or false if it is not consistent
@@ -597,7 +651,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
         String hash = hasher.getHash(str + i, params.getLevels());
         int num = Integer.parseInt(hash, 2);
         NodeInfo node = searchByNumID(num);
-        if (taken.containsKey(node.getAddress())) continue;
+        if (taken.containsKey(node.getAddress()))
+          continue;
         taken.put(node.getAddress(), 1);
         validators.add(node);
         validFound++;
@@ -610,9 +665,12 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * Checks the soundness, correctness and authenticity of a transaction using other methods. Checks
-   * if the owner of the transaction has enough balance to cover validation fees. returns null in
-   * case any of the tests fails, otherwise it signs the hashvalue of the transaction and sends the
+   * Checks the soundness, correctness and authenticity of a transaction using
+   * other methods. Checks
+   * if the owner of the transaction has enough balance to cover validation fees.
+   * returns null in
+   * case any of the tests fails, otherwise it signs the hashvalue of the
+   * transaction and sends the
    * signed value to the owner.
    *
    * @param t transaction to be validated by proof of validation
@@ -632,15 +690,15 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       hasBalance = hasBalanceCompliance(t);
 
       boolean val = isAuth && isCorrect && isSound && hasBalance;
-      if (val == false) return new SignedBytes(null, isAuth, isSound, isCorrect, hasBalance);
+      if (val == false)
+        return new SignedBytes(null, isAuth, isSound, isCorrect, hasBalance);
       logger.debug("Transaction Approved");
-      SignedBytes signedHash =
-          new SignedBytes(
-              digitalSignature.signString(t.getHash()).getBytes(),
-              isAuth,
-              isSound,
-              isCorrect,
-              hasBalance);
+      SignedBytes signedHash = new SignedBytes(
+          digitalSignature.signString(t.getHash()).getBytes(),
+          isAuth,
+          isSound,
+          isCorrect,
+          hasBalance);
       long endTime = System.currentTimeMillis();
       signedHash.setValidationTime(endTime - startTime);
       return signedHash;
@@ -652,8 +710,10 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method validated the soundness of a given transaction It checks if the given transaction
-   * is associated with a block which does not precede the block that contains the transaction's
+   * This method validated the soundness of a given transaction It checks if the
+   * given transaction
+   * is associated with a block which does not precede the block that contains the
+   * transaction's
    * owner's last transaction.
    *
    * @param t transaction whose soundness is to be checked
@@ -692,8 +752,10 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       int tIdx = prevBlk.getIndex();
       int bIdx = thisBlk.getIndex();
 
-      if (tIdx <= bIdx) logger.debug("Transaction not sound, Prev: " + tIdx + ", Latest: " + bIdx);
-      else logger.debug("Transaction is sound");
+      if (tIdx <= bIdx)
+        logger.debug("Transaction not sound, Prev: " + tIdx + ", Latest: " + bIdx);
+      else
+        logger.debug("Transaction is sound");
       return tIdx > bIdx;
     } catch (Exception e) {
       e.printStackTrace();
@@ -702,8 +764,10 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method receives a transaction and verifies two things: 1- The hashvalue of the transaction
-   * was generated according to the correct equation 2- The sigma of the transaction contains the
+   * This method receives a transaction and verifies two things: 1- The hashvalue
+   * of the transaction
+   * was generated according to the correct equation 2- The sigma of the
+   * transaction contains the
    * transaction's owner signed value of the hashvalue
    *
    * @param t transaction whose authenticity is to be verified
@@ -724,12 +788,14 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       List<SignedBytes> tSigma = t.getSigma();
       PublicKey ownerPublicKey = getOwnerPublicKey(t.getOwner());
       boolean verified = false;
-      if (ownerPublicKey == null) return false;
+      if (ownerPublicKey == null)
+        return false;
       for (int i = 0; i < tSigma.size(); ++i) {
         // if we find one signature which belongs to the owner then we set verified to
         // true
         boolean is = digitalSignature.verifyString(hash, tSigma.get(i), ownerPublicKey);
-        if (is) verified = true;
+        if (is)
+          verified = true;
       }
       if (verified == false) {
         logger.debug("Transaction does not contain signature of owner");
@@ -743,10 +809,13 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * Checks if the owner of the transaction has enough balance to cover the fees of validation
+   * Checks if the owner of the transaction has enough balance to cover the fees
+   * of validation
    *
-   * @param t transaction whose owner will be checked for enough balance compliance
-   * @return true if owner of transaction has enough balance to cover validation fees
+   * @param t transaction whose owner will be checked for enough balance
+   *          compliance
+   * @return true if owner of transaction has enough balance to cover validation
+   *         fees
    */
   public boolean hasBalanceCompliance(Transaction t) {
     try {
@@ -766,9 +835,12 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   }
 
   /**
-   * This method recieves the numID of an owner of a transaction or a block and first verifies of
-   * the given public key truly belongs to the owner by hashing the provided public key and
-   * comparing it with the given numID if the test fails it prints it to console and return null.
+   * This method recieves the numID of an owner of a transaction or a block and
+   * first verifies of
+   * the given public key truly belongs to the owner by hashing the provided
+   * public key and
+   * comparing it with the given numID if the test fails it prints it to console
+   * and return null.
    * otherwise it returns the public key of the owner.
    *
    * @param num numerical ID of node whose public key is to be retrieved
@@ -786,8 +858,8 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       }
 
       PublicKeyResponse response = PublicKeyResponseOf(underlay.sendMessage(
-              new GetPublicKeyRequest(),
-              owner.getAddress()));
+          new GetPublicKeyRequest(),
+          owner.getAddress()));
       PublicKey pk = response.result;
 
       // Hash the public key and store the hash value as int
@@ -838,7 +910,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     Random rnd = new Random();
     try {
       for (int i = 0; i < numTransactions; i++) {
-        logger.debug("Iteration: " +i);
+        logger.debug("Iteration: " + i);
         int randomWait = rnd.nextInt(500) + 500;
         Thread.sleep(randomWait);
         logger.debug("Making Transaction ...");
