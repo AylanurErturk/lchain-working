@@ -1,4 +1,4 @@
-FROM ethereum/solc:0.4.24 as builder
+FROM ethereum/solc:0.4.24 AS builder
 WORKDIR /app
 COPY target/lightchain-container-*-jar-with-dependencies.jar /app/
 COPY src/main/resources/log4j.properties /app/
