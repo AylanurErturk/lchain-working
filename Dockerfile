@@ -10,4 +10,8 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=builder /app /app
 
-CMD ["sh", "-lc", "java -jar lightchain-container-*-jar-with-dependencies.jar"]
+CMD ["sh","-lc","java \
+  -Dlog4j.configuration=file:/app/log4j.properties \
+  -Xss256k -XX:MaxRAMPercentage=60 \
+  -Dsun.rmi.transport.tcp.maxConnectionThreads=64 \
+  -jar lightchain-container-*-jar-with-dependencies.jar"]
