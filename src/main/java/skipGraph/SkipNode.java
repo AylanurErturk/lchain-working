@@ -1,6 +1,7 @@
 package skipGraph;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import remoteTest.Configuration;
 import remoteTest.PingLog;
 import remoteTest.TestingLog;
@@ -35,7 +36,7 @@ public class SkipNode implements SkipGraphNode {
     protected int port;
     protected boolean isInserted = false;
     private LookupTable lookup;
-    private Logger logger;
+    private static final Logger logger = LogManager.getLogger(SkipNode.class);
 
     protected Underlay underlay;
 
@@ -56,7 +57,7 @@ public class SkipNode implements SkipGraphNode {
         this.introducer = introducer;
         this.IP = Util.grabIP();
         this.address = IP + ":" + port;
-        this.logger = Logger.getLogger(port + "");
+        
 
         this.underlay = underlay;
         underlay.setSkipNode(this);

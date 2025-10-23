@@ -2,7 +2,8 @@ package blockchain;
 
 import hashing.Hasher;
 import hashing.HashingTools;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import signature.DigitalSignature;
 import signature.SignedBytes;
 import simulation.SimLog;
@@ -37,7 +38,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   public boolean mode;
   private int balance = 20;
   private SimLog simLog = new SimLog(true);
-  public Logger logger;
+  private static final Logger logger = LogManager.getLogger(LightChainNode.class);
   private Parameters params;
   private int token; // Is used to store the value of tokens owned by a node.
   private CorrectnessVerifier cv;
@@ -64,7 +65,6 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     this.view = new View();
     this.mode = params.getMode();
     this.token = params.getInitialToken();
-    this.logger = Logger.getLogger(port + "");
     Tmode = (int) Math.round(Math.random());
     String name = hasher.getHash(digitalSignature.getPublicKey().getEncoded(), params.getLevels());
     super.setNumID(Integer.parseInt(name, 2));
@@ -862,5 +862,10 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
   @Override
   public int getToken() {
     return token;
+  }
+
+
+  public Logger getLogger() {
+    return LightChainNode.logger;
   }
 }

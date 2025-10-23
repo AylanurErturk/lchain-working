@@ -37,7 +37,7 @@ class LightChainCV extends CorrectnessVerifier {
         boolean ownerMode = owner.view.getMode(t.getOwner());
         if (ownerMode != owner.mode) {
             // TODO: apply logging best practice.
-            owner.logger.debug("Transaction not correct");
+            owner.getLogger().debug("Transaction not correct");
         }
         // by convention of prototyping, a transaction is correct if both owner and validator (i.e., this node)
         // are of the same mode, otherwise it is incorrect.

@@ -10,23 +10,35 @@
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Keep all Log4j2 modules aligned via BOM -->
     <log4j2.version>2.25.2</log4j2.version>
+
     <junit.jupiter.version>5.13.4</junit.jupiter.version>
     <mockito.version>5.20.0</mockito.version>
     <checkstyle.version>12.1.0</checkstyle.version>
+
     <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
     <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
     <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-bom</artifactId>
+        <version>${log4j2.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <build>
-    <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
       <resource>
-        <directory>src</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
+        <directory>src/main/resources</directory>
       </resource>
     </resources>
 
@@ -39,23 +51,22 @@
           <execution>
             <id>make-assembly</id>
             <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
+            <goals><goal>single</goal></goals>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <archive>
+                <manifest>
+                  <mainClass>simulation.SimulationDriver</mainClass>
+                </manifest>
+              </archive>
+              <appendAssemblyId>true</appendAssemblyId>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass>simulation.SimulationDriver</mainClass>
-            </manifest>
-          </archive>
-          <appendAssemblyId>true</appendAssemblyId>
-        </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -78,18 +89,12 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>${log4j2.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-1.2-api</artifactId>
-      <version>${log4j2.version}</version>
-    </dependency>
+
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -103,7 +108,6 @@
       <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -111,13 +115,11 @@
       <scope>test</scope>
     </dependency>
 
-
     <dependency>
       <groupId>com.github.semuxproject</groupId>
       <artifactId>evm</artifactId>
       <version>e702170e45dee8d1c7fca6e5c6edf078e608ab4a</version>
     </dependency>
-
 
     <dependency>
       <groupId>com.puppycrawl.tools</groupId>

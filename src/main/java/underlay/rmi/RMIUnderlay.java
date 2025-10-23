@@ -2,7 +2,9 @@ package underlay.rmi;
 
 import blockchain.LightChainInterface;
 import blockchain.LightChainNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import skipGraph.NodeInfo;
 import skipGraph.SkipGraphNode;
 import underlay.Underlay;
@@ -30,7 +32,7 @@ public class RMIUnderlay extends Underlay {
   private String address;
   JavaRMIHost host;
 
-  private final Logger logger = Logger.getLogger("" + port);
+  private static final Logger logger = LogManager.getLogger(RMIUnderlay.class);
 
   public RMIUnderlay(int port) {
     this.IP = Util.grabIP();
