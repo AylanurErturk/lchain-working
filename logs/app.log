@@ -1,0 +1,59 @@
+Starting simulation with parameters: Parameters: 
+ValidationFees= 1
+SignaturesThreshold= 1
+Alpha= 10
+Levels= 30
+InitialBalance= 200
+TxMin= 1
+Mode= true
+Tokens= 20
+ContractMode= false
+ Number of nodes: 10
+ Number of iterations: 50
+ Pace: 4
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+12469075 101010001101100101100110001101 class skipGraph.NodeInfo
+87949076 100110111011110101100010010000 class skipGraph.NodeInfo
+112210728 010100001110011111000111100001 class skipGraph.NodeInfo
+Starting simulation with parameters: Parameters: 
+ValidationFees= 1
+SignaturesThreshold= 1
+Alpha= 10
+Levels= 30
+InitialBalance= 200
+TxMin= 1
+Mode= true
+Tokens= 20
+ContractMode= false
+ Number of nodes: 10
+ Number of iterations: 50
+ Pace: 4
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+Rebinding Successful
+0 101011101110011001010010110100 class skipGraph.NodeInfo
+81067877 001101011101010100001111100001 class skipGraph.NodeInfo
+170365347 011100101110011011001000101001 class skipGraph.NodeInfo
+374162691 was returned when 225788897 was expected, its type is class skipGraph.NodeInfo
+374162691 011111100010010101110001101000 class skipGraph.NodeInfo
+392849067 101101110101111011111010111101 class skipGraph.NodeInfo
+437882740 101011101110011001010010110100 class blockchain.Block
+213722412 was returned when 225788897 was expected, its type is class skipGraph.NodeInfo
+81067877 001101011101010100001111100001 class skipGraph.NodeInfo
+170365347 011100101110011011001000101001 class skipGraph.NodeInfo

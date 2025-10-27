@@ -91,6 +91,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       cv = new ContractCV(this); // LightChainCV extends CorrectnessVerifier for native LightChain
     } else {
       cv = new LightChainCV(this); // ContractCV extends CorrectnessVerifier for the contract mode
+
     }
   }
 

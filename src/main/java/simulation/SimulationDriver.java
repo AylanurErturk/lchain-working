@@ -1,13 +1,13 @@
 package simulation;
 
-import blockchain.Parameters;
-import underlay.rmi.RMIUnderlay;
-
-import java.io.File;
+import java.net.URI;
+import java.nio.file.Paths;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+
+import blockchain.Parameters;
 import util.PropertyManager;
 
 public class SimulationDriver {
@@ -38,9 +38,20 @@ public class SimulationDriver {
     }
 
     private static void initializeLogger() {
-        String path = "log4j2.properties";
-        LoggerContext context = (LoggerContext) LogManager.getContext(false);
-        context.setConfigLocation(new File(path).toURI());
+        System.setProperty("log4j2.contextSelector",
+                "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+        //URI cfg = Paths.get("/src/main/resources/").toUri();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        //ctx.setConfigLocation(cfg);
+        ctx.updateLoggers();
+        //logger.debug("LOG_TEST: config loaded from {}", cfg);
+        
+        var cfg2 = ctx.getConfiguration();
+        System.out.println("EFFECTIVE_ROOT_LEVEL=" + cfg2.getRootLogger().getLevel());
+        cfg2.getLoggers().forEach((n, l) -> System.out.println("LOGGER_LEVEL " + n + " = " + l.getLevel()));
+        cfg2.getAppenders()
+                .forEach((n, a) -> System.out.println("APPENDER " + n + " => " + a.getClass().getSimpleName()));
+
     }
 
     private static PropertyManager propMng;
