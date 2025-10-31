@@ -1,6 +1,5 @@
 package util;
 
-import skipGraph.LookupTable;
 
 public class Const {
 	

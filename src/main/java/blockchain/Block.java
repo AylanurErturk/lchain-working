@@ -7,8 +7,7 @@ import hashing.Hasher;
 import hashing.HashingTools;
 import signature.SignedBytes;
 import skipGraph.NodeInfo;
-import skipGraph.SkipNode;
-import util.Const;
+
 
 public class Block extends NodeInfo {
 
@@ -21,14 +20,13 @@ public class Block extends NodeInfo {
 	private Hasher hasher;
 	private final int index;
 	private int levels;
-	private int shardID;
 
 	/**
 	 * @param prev the address of the previous block
 	 * @param owner the address of the owner of the block
 	 */
-	public Block(String prev, int owner, String address, int idx,int levels, int shardID) {
-		super(address, 0, prev, shardID);
+	public Block(String prev, int owner, String address, int idx,int levels) {
+		super(address, 0, prev);
 		this.index = idx;
 		this.prev = prev;
 		this.owner = owner;
@@ -37,11 +35,10 @@ public class Block extends NodeInfo {
 		hasher = new HashingTools();
 		this.hash = hasher.getHash(prev + owner, levels);
 		super.setNumID(Integer.parseInt(this.hash, 2));
-		//this.shardID = shardID;
 	}
 
-	public Block(String prev, int owner, String address, List<Transaction> tList, int idx, int levels, int shardID) {
-		super(address, 0, prev, shardID);
+	public Block(String prev, int owner, String address, List<Transaction> tList, int idx, int levels) {
+		super(address, 0, prev);
 		this.index = idx;
 		this.prev = prev;
 		this.owner = owner;
@@ -54,7 +51,7 @@ public class Block extends NodeInfo {
 	}
 
 	public Block(Block blk) {
-		super(blk.getAddress(), blk.getNumID(), blk.getNameID(), blk.getShardID());
+		super(blk.getAddress(), blk.getNumID(), blk.getNameID());
 		hasher = new HashingTools();
 		this.index = blk.getIndex();
 		this.prev = blk.getPrev();

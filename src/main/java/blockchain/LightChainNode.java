@@ -2,16 +2,14 @@ package blockchain;
 
 import hashing.Hasher;
 import hashing.HashingTools;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import signature.DigitalSignature;
 import signature.SignedBytes;
 import simulation.SimLog;
 import skipGraph.NodeInfo;
 import skipGraph.SkipNode;
-import skipGraph.UpperSkipNode;
-import underlay.InterfaceType;
 import underlay.Underlay;
-import underlay.rmi.RMIUnderlay;
 import underlay.requests.lightchain.GetPublicKeyRequest;
 import underlay.requests.lightchain.PoVRequest;
 import underlay.requests.lightchain.RemoveFlagNodeRequest;
@@ -23,29 +21,26 @@ import util.Util;
 import java.io.FileNotFoundException;
 import java.security.PublicKey;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static underlay.responses.PublicKeyResponse.PublicKeyResponseOf;
 import static underlay.responses.SignatureResponse.SignatureResponseOf;
 
 public class LightChainNode extends SkipNode implements LightChainInterface {
 
-  private static final long serialVersionUID = 1L;
   private List<Transaction> transactions;
   private DigitalSignature digitalSignature;
   private Hasher hasher;
-  private Validator validator;
   public View view;
   public boolean mode;
   private int balance = 20;
   private SimLog simLog = new SimLog(true);
-  public Logger logger;
+  private static final Logger logger = LogManager.getLogger(LightChainNode.class);
   private Parameters params;
-  protected int token; // Is used to store the value of tokens owned by a node.
+  private int token; // Is used to store the value of tokens owned by a node.
   private CorrectnessVerifier cv;
   public int Tmode; // Defines the mode for every node eg. 1 -> consumer | 2 -> producer
   private Underlay underlay;
-  
-
 
   public Underlay getUnderlay() {
     return underlay;
@@ -59,7 +54,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
    */
   public LightChainNode(Parameters params, int port, String introducer, boolean isInitial, Underlay underlay)
       {
-    super(port, params.getLevels(), params.getMaxShards(), introducer, underlay);
+    super(port, params.getLevels(), introducer, underlay);
     this.params = params;
     this.digitalSignature = new DigitalSignature();
     this.hasher = new HashingTools();
@@ -67,34 +62,27 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     this.view = new View();
     this.mode = params.getMode();
     this.token = params.getInitialToken();
-    this.logger = Logger.getLogger(port + "");
     Tmode = (int) Math.round(Math.random());
     String name = hasher.getHash(digitalSignature.getPublicKey().getEncoded(), params.getLevels());
     super.setNumID(Integer.parseInt(name, 2));
     name = hasher.getHash(name, params.getLevels());
     super.setNameID(name);
-    super.setShardID(assignToShard(super.getNumID()));
-    logger.info("On LCN constructor.");
 
-    logger.info(isInitial);
-    if (isInitial) {
-
-      isInserted = true;
-      return;
-    }
-
-    
+    if (isInitial) isInserted = true;
 
     // adds values of numID and nameID to lookup table
-    NodeInfo peer = new NodeInfo(address, numID, nameID, shardID);
-    addPeerNode(peer);
+    NodeInfo peer = new NodeInfo(address, numID, nameID);
+    
+    if (isInitial)
+        addPeerNode(peer);
 
     this.underlay = underlay;
     underlay.setLightChainNode(this);
 
+    
     if (!isInitial) {
-      logger.info("hehe");
       insertNode(peer);
+      addPeerNode(peer);
     }
 
     view.updateToken(getNumID(), this.token);
@@ -104,6 +92,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       cv = new ContractCV(this); // LightChainCV extends CorrectnessVerifier for native LightChain
     } else {
       cv = new LightChainCV(this); // ContractCV extends CorrectnessVerifier for the contract mode
+
     }
   }
 
@@ -145,6 +134,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
    * get such transactions, and if the number of found transactions is at least TX_MIN, the
    * transactions are casted into a block and the block is sent for validation.
    */
+  @SuppressWarnings("null")
   public Block mineAttempt() {
     try {
       long startTotal = System.currentTimeMillis();
@@ -181,8 +171,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
               getAddress(),
               tList,
               blk.getIndex() + 1,
-              params.getLevels(),
-              assignToShard(getNumID()));
+              params.getLevels());
       // send the new block for PoV validation
       logger.debug("Validating new Block ...");
 
@@ -218,8 +207,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
    * @param blk the block for which a flag node will be inserted
    */
   private void insertFlagNode(Block blk) {
-    logger.info("inserting Flag Node...");
-    super.insertDataNode(Const.ZERO_ID, blk.getHash(), 0);
+    super.insertDataNode(Const.ZERO_ID, blk.getHash());
   }
 
   /** removes the flag node pointing to the latest block that was inserted by this node */
@@ -244,7 +232,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
         Block lstBlk = getLatestBlock();
         logger.debug("Prev found: " + lstBlk.getNumID());
         Transaction t =
-            new Transaction(lstBlk.getHash(), getNumID(), cont, getAddress(), params.getLevels(), assignToShard(getNumID()));
+            new Transaction(lstBlk.getHash(), getNumID(), cont, getAddress(), params.getLevels());
         boolean verified = validateTransaction(t);
         if (verified) {
           insertTransaction(t);
@@ -267,7 +255,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
    * @param t transaction to be inserted
    */
   public void insertTransaction(Transaction t) {
-    logger.info("inserting transaction...");
+
     super.insertNode(t);
   }
 
@@ -281,7 +269,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     if (!prevAddress.equals(getAddress())) {
       underlay.sendMessage(
           new RemoveFlagNodeRequest(), prevAddress);
-      logger.info("inserting block...");
+
       insertNode(blk);
       insertFlagNode(blk);
     }
@@ -295,12 +283,11 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     }
     String prev = st.toString();
     int index = 0;
-    
-    Block b = new Block(prev, getNumID(), getAddress(), index, params.getLevels(), 0);
-    b.setShardID(assignToShard(b.getNumID()));
-    logger.debug("Inserting Genesis Block " + b.getNumID());
+    Block b = new Block(prev, getNumID(), getAddress(), index, params.getLevels());
+    // use current address as prev when inserting genesis block
     insertNode(b);
     insertFlagNode(b);
+    logger.debug("Inserting Genesis Block " + b.getNumID());
     return b;
   }
 
@@ -314,12 +301,11 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
     try {
       logger.debug("searching for flag");
 
-      NodeInfo flag = searchByNumID(Const.ZERO_ID, 0);
+      NodeInfo flag = searchByNumID(Const.ZERO_ID);
 
       logger.debug("searching for block");
       int num = Integer.parseInt(flag.getNameID(), 2);
-      int targetShard = assignToShard(num);        
-      NodeInfo blk    = searchByNumID(num, targetShard);
+      NodeInfo blk = searchByNumID(num);
       if (blk instanceof Block) return (Block) blk;
       else {
         logger.error(
@@ -613,7 +599,7 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       for (int i = 0; validFound < params.getAlpha() && i < 200; ++i) {
         String hash = hasher.getHash(str + i, params.getLevels());
         int num = Integer.parseInt(hash, 2);
-        NodeInfo node = searchByNumID(num, assignToShard(num));
+        NodeInfo node = searchByNumID(num);
         if (taken.containsKey(node.getAddress())) continue;
         taken.put(node.getAddress(), 1);
         validators.add(node);
@@ -625,31 +611,6 @@ public class LightChainNode extends SkipNode implements LightChainInterface {
       return null;
     }
   }
-
-  // LightChainNode.java
-public List<NodeInfo> getShardValidators(String hash, Set<Integer> shards, int kPerShard) {
-  List<NodeInfo> validators = new ArrayList<>();
-  Map<String,Boolean> taken = new HashMap<>();
-  Random r = new Random(hash.hashCode());          
-
-  for (int shardId : shards) {
-    String introAddr = this.unode.getShardIntroducerAddresses().get(shardId);  
-    assert introAddr != null : "Shard " + shardId + " must have an introducer";
-
-    int picked = 0, salt = 0;
-    while (picked < kPerShard && salt < 400) {
-      int num = Math.abs(r.nextInt() + salt);
-      NodeInfo n = searchByNumID(num, shardId);             
-      if (n != null && taken.putIfAbsent(n.getAddress(), true) == null) {
-        validators.add(n);
-        picked++;
-      }
-      salt++;
-    }
-  }
-return validators;
-}
-
 
   /**
    * Checks the soundness, correctness and authenticity of a transaction using other methods. Checks
@@ -717,12 +678,12 @@ return validators;
       int blkNumID = view.getLastBlk(t.getOwner());
 
       // TODO: remove these checks after implementing type search
-      NodeInfo b1 = searchByNumID(prev, assignToShard(prev));
+      NodeInfo b1 = searchByNumID(prev);
       if (!(b1 instanceof Block)) {
         logger.error("search for prev did not return a block: " + prev);
         return false;
       }
-      NodeInfo b2 = searchByNumID(blkNumID, assignToShard(blkNumID));
+      NodeInfo b2 = searchByNumID(blkNumID);
       if (!(b2 instanceof Block)) {
         logger.error("search for latest block of owner did not return a block: " + prev);
         return false;
@@ -792,7 +753,6 @@ return validators;
    */
   public boolean hasBalanceCompliance(Transaction t) {
     try {
-      long start = System.currentTimeMillis();
 
       if (!view.hasBalanceEntry(t.getOwner())) {
         view.updateBalance(t.getOwner(), params.getInitialBalance());
@@ -819,7 +779,7 @@ return validators;
   public PublicKey getOwnerPublicKey(int num) {
     try {
       // find owner from the network
-      NodeInfo owner = searchByNumID(num, assignToShard(num));
+      NodeInfo owner = searchByNumID(num);
 
       if (owner.getNumID() != num) {
         logger.debug("no node was found with given numID");
@@ -877,23 +837,33 @@ return validators;
   public SimLog startSim(int numTransactions, int pace) {
 
     simLog = new SimLog(Const.HONEST);
-    Random rnd = new Random();
-    try {
-      for (int i = 0; i < numTransactions; i++) {
-        int randomWait = rnd.nextInt(500) + 500;
-        Thread.sleep(randomWait);
-        logger.debug("Making Transaction ...");
-        makeTransaction(Util.getRandomString(135));
-        if (true) {
-          randomWait = rnd.nextInt(500) + 500;
-          Thread.sleep(randomWait);
-          logger.debug("Mining ...");
-          mineAttempt();
-        }
+    ThreadLocalRandom rnd = ThreadLocalRandom.current();
+
+    for (int i = 0; i < numTransactions; i++) {
+      try {
+        Thread.sleep(rnd.nextInt(500) + 500);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(ie);
       }
-    } catch (Exception e) {
-      e.printStackTrace();
+
+      logger.debug("Making Transaction ...");
+      makeTransaction(Util.getRandomString(135));
+
+      try {
+        Thread.sleep(rnd.nextInt(500) + 500);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(ie);
+      }
+
+      logger.debug("Mining ..." + i);
+      Block b = mineAttempt();
+      if (b == null)
+        logger.info("block is null!");
+      logger.debug("Done mining. {}", i);
     }
+    logger.debug("returning simlog");
     return simLog;
   }
 
@@ -906,7 +876,8 @@ return validators;
     return token;
   }
 
-  public int assignToShard(int numID) {
-    return numID % params.getMaxShards();
+
+  public Logger getLogger() {
+    return LightChainNode.logger;
   }
 }

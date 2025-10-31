@@ -13,7 +13,7 @@ import static underlay.responses.IntegerResponse.IntegerResponseOf;
  * ContractCV contains the isCorrect() function which is used to interact with the wrapper function
  * TransctSol()
  */
-public class ContractCV extends CorrectnessVerifier {
+class ContractCV extends CorrectnessVerifier {
     Underlay underlay;
     Contract ct = new Contract();
     ContractTransaction tesq = new ContractTransaction();
@@ -34,10 +34,14 @@ public class ContractCV extends CorrectnessVerifier {
     public boolean isCorrect(Transaction t) {
         try {
 
-            NodeInfo txOwner = owner.searchByNumID(t.getOwner(), t.getShardID());
+            NodeInfo txOwner = owner.searchByNumID(t.getOwner());
+
+
             IntegerResponse response = IntegerResponseOf(underlay.sendMessage(
                     new GetTokenRequest(),
                     txOwner.getAddress()));
+
+            
             int token1 = response.result;
             tesq.setup();
             return tesq.TransctSol(token1, ct.contractName1, ct.functname1);

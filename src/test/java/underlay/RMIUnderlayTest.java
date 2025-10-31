@@ -20,6 +20,7 @@ import underlay.responses.SignatureResponse;
 import underlay.rmi.RMIUnderlay;
 
 import java.io.FileNotFoundException;
+import java.rmi.RemoteException;
 import java.security.PublicKey;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,9 +58,10 @@ public class RMIUnderlayTest {
    * A test for the GetRightNumIDRequest message for the RMIUnderlay
    *
    * @throws FileNotFoundException
+   * @throws RemoteException 
    */
   @Test
-  public void RightNumIDTest() throws FileNotFoundException {
+  public void RightNumIDTest() throws FileNotFoundException, RemoteException {
     when(targetSkipNode.getRightNumID(0, 60)).thenReturn(80);
     IntegerResponse response = IntegerResponseOf(underlay.answer(new GetRightNumIDRequest(0, 60)));
     assertEquals(response.result, 80);
@@ -69,9 +71,10 @@ public class RMIUnderlayTest {
    * A test for the GetLeftNodeRequest message for the RMIUnderlay
    *
    * @throws FileNotFoundException
+   * @throws RemoteException 
    */
   @Test
-  public void GetLeftNodeTest() throws FileNotFoundException {
+  public void GetLeftNodeTest() throws FileNotFoundException, RemoteException {
     NodeInfo result = Fixtures.NodeInfoFixture();
     when(targetSkipNode.getLeftNode(1, 2)).thenReturn(result);
     NodeInfoResponse response = NodeInfoResponseOf(underlay.answer(new GetLeftNodeRequest(1, 2)));
@@ -82,9 +85,10 @@ public class RMIUnderlayTest {
     /**
      * A test for the PoVRequest message for the RMIUnderlay
     * @throws FileNotFoundException
+     * @throws RemoteException 
      */
      @Test
-    public void PoVRequestTest() throws FileNotFoundException {
+    public void PoVRequestTest() throws FileNotFoundException, RemoteException {
         Transaction testTransaction = Fixtures.TransactionFixture();
         SignedBytes testResult = Fixtures.SignedBytesFixture();
         when(targetLightChain.PoV(testTransaction)).thenReturn(testResult);
@@ -97,9 +101,10 @@ public class RMIUnderlayTest {
     /**
      * A test for the GetPublicKeyRequest message for the RMIUnderlay
      * @throws FileNotFoundException
+     * @throws RemoteException 
      */
     @Test
-    public void GetPublicKeyRequestTest() throws FileNotFoundException {
+    public void GetPublicKeyRequestTest() throws FileNotFoundException, RemoteException {
         PublicKey testResult = new PublicKey() {
             @Override
             public String getAlgorithm() {

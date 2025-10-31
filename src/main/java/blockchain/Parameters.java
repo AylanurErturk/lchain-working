@@ -14,7 +14,6 @@ public class Parameters {
 	private int Token = 20; // a token is a representation of any quantity of an asset which the node owns
 	private boolean Chain = true; // Mode of lightchain (false -> original || true -> Smartcontract)
 	public final boolean CONTRACT_MODE = true; // Alias name for True.
-	private int maxShards = 10;
 	
 	public Parameters() {
 		
@@ -91,14 +90,6 @@ public class Parameters {
 	}
 	public int getInitialToken() {
 		return Token;
-	}
-
-	public int getMaxShards() {
-		return maxShards;
-	}
-
-	public void setMaxShards(int maxShards) {
-		this.maxShards = maxShards;
 	}
 
 

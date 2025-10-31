@@ -5,6 +5,7 @@ import skipGraph.NodeInfo;
 import java.util.List;
 
 /** Represents a response which returns a List of NodeInfo's. */
+
 public class NodeInfoListResponse extends GenericResponse {
   public final List<NodeInfo> result;
 

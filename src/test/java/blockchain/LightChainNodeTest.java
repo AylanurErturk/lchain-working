@@ -85,11 +85,11 @@ class LightChainNodeTest {
 			String randStr3 = Util.getRandomString(12);
 
 			Transaction t2 = new Transaction(blk.getHash(), node2.getNumID(), randStr1, node2.getAddress(),
-					params.getLevels(), node2.assignToShard(node2.getNumID()));
+					params.getLevels());
 			Transaction t3 = new Transaction(blk.getHash(), node3.getNumID(), randStr2, node3.getAddress(),
-					params.getLevels(), node3.assignToShard(node3.getNumID()));
+					params.getLevels());
 			Transaction t4 = new Transaction(blk.getHash(), node4.getNumID(), randStr3, node4.getAddress(),
-					params.getLevels(), node4.assignToShard(node4.getNumID()));
+					params.getLevels());
 
 			node2.insertTransaction(t2);
 			node3.insertTransaction(t3);
@@ -130,11 +130,11 @@ class LightChainNodeTest {
 			String randStr3 = Util.getRandomString(12);
 
 			Transaction t2 = new Transaction(blk.getHash(), node2.getNumID(), randStr1, node2.getAddress(),
-					params.getLevels(), node2.assignToShard(node2.getNumID()));
+					params.getLevels());
 			Transaction t3 = new Transaction(blk.getHash(), node3.getNumID(), randStr2, node3.getAddress(),
-					params.getLevels(), node3.assignToShard(node3.getNumID()));
+					params.getLevels());
 			Transaction t4 = new Transaction(blk.getHash(), node4.getNumID(), randStr3, node4.getAddress(),
-					params.getLevels(), node4.assignToShard(node4.getNumID()));
+					params.getLevels());
 
 			node2.insertTransaction(t2);
 			node3.insertTransaction(t3);
@@ -169,7 +169,7 @@ class LightChainNodeTest {
 				for (int j = 0; j < nodeList.size(); ++j) {
 					String randStr = Util.getRandomString(10);
 					Transaction t = new Transaction(latestBlock.getHash(), nodeList.get(j).getNumID(), randStr,
-							nodeList.get(j).getAddress(), params.getLevels(), nodeList.get(j).assignToShard(nodeList.get(j).getNumID()));
+							nodeList.get(j).getAddress(), params.getLevels());
 					nodeList.get(j).insertTransaction(t);
 				}
 				
@@ -182,8 +182,7 @@ class LightChainNodeTest {
 				if (i % 2 == 0) {
 					int index = i % nodeList.size();
 					Block blk = new Block(latestBlock.getHash(), nodeList.get(index).getNumID(),
-							nodeList.get(index).getAddress(), latestBlock.getIndex(), params.getLevels(), 
-							nodeList.get(index).assignToShard(nodeList.get(index).getNumID()));
+							nodeList.get(index).getAddress(), latestBlock.getIndex(), params.getLevels());
 					 nodeList.get(index).insertBlock(blk, latestBlock.getAddress());
 					 latestBlock = blk;
 				}
@@ -211,8 +210,7 @@ class LightChainNodeTest {
 
 			// Test detecting second block after genesis
 
-			Block blk2 = new Block(blk.getHash(), node2.getNumID(), node2.getAddress(), 1, params.getLevels(), 
-			node2.assignToShard(node2.getNumID()));
+			Block blk2 = new Block(blk.getHash(), node2.getNumID(), node2.getAddress(), 1, params.getLevels());
 			node2.insertBlock(blk2, blk.getAddress());
 
 			Block b1 = node1.getLatestBlock();
@@ -223,8 +221,7 @@ class LightChainNodeTest {
 
 			// Test detecting third block
 
-			Block blk3 = new Block(blk2.getHash(), node3.getNumID(), node3.getAddress(), 2, params.getLevels(), 
-			node3.assignToShard(node3.getNumID()));
+			Block blk3 = new Block(blk2.getHash(), node3.getNumID(), node3.getAddress(), 2, params.getLevels());
 			node3.insertBlock(blk3, blk2.getAddress());
 
 			b1 = node1.getLatestBlock();
@@ -328,8 +325,7 @@ class LightChainNodeTest {
             Block blk = node1.insertGenesis();
             String randStr1 = Util.getRandomString(10);
             
-            Transaction t2 = new Transaction(blk.getHash(), node2.getNumID(), randStr1, node2.getAddress(), params.getLevels(),
-			node2.assignToShard(node2.getNumID()));
+            Transaction t2 = new Transaction(blk.getHash(), node2.getNumID(), randStr1, node2.getAddress(), params.getLevels());
             node2.insertTransaction(t2);
             
             ContractCV cv = new ContractCV(node2);
@@ -354,8 +350,7 @@ class LightChainNodeTest {
             Block blk = node1.insertGenesis();
             String randStr1 = Util.getRandomString(10);
             
-            Transaction t2 = new Transaction(blk.getHash(), node2.getNumID(), randStr1, node2.getAddress(), params.getLevels(),
-			node2.assignToShard(node2.getNumID()));
+            Transaction t2 = new Transaction(blk.getHash(), node2.getNumID(), randStr1, node2.getAddress(), params.getLevels());
             node2.insertTransaction(t2);
             
             LightChainCV cv = new LightChainCV(node2);

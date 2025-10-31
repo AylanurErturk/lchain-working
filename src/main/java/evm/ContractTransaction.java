@@ -13,8 +13,11 @@ import org.ethereum.vm.client.*;
 import org.ethereum.vm.util.ByteArrayUtil;
 import org.ethereum.vm.util.HashUtil;
 import org.ethereum.vm.util.HexUtil;
+
+
 import static org.ethereum.vm.util.ByteArrayUtil.merge;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
 * This class is used by the lightchain to interact with the Ethereum Virtuam Machine (EVM) 
@@ -25,7 +28,7 @@ public class ContractTransaction extends vmbase {
     public final BigInteger premine = BigInteger.valueOf(1L).multiply(Unit.ETH); // each account has 1 ether
     public Transaction transaction;
     public Block block;
-    final static Logger logger = Logger.getLogger(ContractTransaction.class);
+    private static final Logger logger = LogManager.getLogger(ContractTransaction.class);
 
     public void setup() {
         super.setup();
@@ -74,7 +77,7 @@ public class ContractTransaction extends vmbase {
         byte[] contractAddress = HashUtil.calcNewAddress(address, nonce);
         Transaction transaction = new TransactionMock(true, address, contractAddress, nonce, value, data, gas, gasPrice);
         TransactionExecutor executor = new TransactionExecutor(transaction, block, repository, blockStore);
-        TransactionReceipt receipt = executor.run();
+        executor.run();
         return contractAddress;
     }
 

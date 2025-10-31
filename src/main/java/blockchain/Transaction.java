@@ -7,8 +7,7 @@ import hashing.Hasher;
 import hashing.HashingTools;
 import signature.SignedBytes;
 import skipGraph.NodeInfo;
-import skipGraph.SkipNode;
-import util.Const;
+
 
 public class Transaction extends NodeInfo {
 
@@ -23,8 +22,8 @@ public class Transaction extends NodeInfo {
 
 	// need to add address to transaction
 
-	public Transaction(String prev, int owner, String cont, String address, int levels, int shardID) {
-		super(address, 0, prev, shardID);
+	public Transaction(String prev, int owner, String cont, String address, int levels) {
+		super(address, 0, prev);
 		this.prev = prev;
 		this.owner = owner;
 		this.cont = cont;
@@ -36,7 +35,7 @@ public class Transaction extends NodeInfo {
 	}
 
 	public Transaction(Transaction t) {
-		super(t.getAddress(), t.getNumID(), t.getNameID(), t.getShardID());
+		super(t.getAddress(), t.getNumID(), t.getNameID());
 		hasher = new HashingTools();
 		this.prev = t.getPrev();
 		this.owner = t.getOwner();

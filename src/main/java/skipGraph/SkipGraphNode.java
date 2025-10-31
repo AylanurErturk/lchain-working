@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import remoteTest.PingLog;
+import underlay.responses.SearchStepResponse;
 
 public interface SkipGraphNode {
 
@@ -48,11 +49,12 @@ public interface SkipGraphNode {
 
 	public NodeInfo searchByNameID(String targetString);
 
-	public NodeInfo searchByNumID(int searchTarget, int shardID);
+	public NodeInfo searchByNumID(int targetNum);
 
-	public List<NodeInfo> searchByNumIDHelper(int searchTarget, int shardID, List<NodeInfo> lst);
+	public List<NodeInfo> searchByNumIDHelper(int targetNum, List<NodeInfo> lst);
 
-	public List<NodeInfo> searchNumID(int numID, int searchTarget, int level, int shardID, List<NodeInfo> lst);
+	public List<NodeInfo> searchNumID(int numID, int targetInt, int level, List<NodeInfo> lst);
+	public List<NodeInfo> getNodesWithNameIDPage(String name, int offset, int limit);
 
 	/*
 	 * Skip Node with data nodes functions
@@ -69,5 +71,7 @@ public interface SkipGraphNode {
 	public PingLog pingStart(NodeInfo node, int freq);
 
 	public PingLog retroPingStart(NodeInfo node, int freq);
+
+    public SearchStepResponse searchNumIDStep(int curNumID, int searchTarget, int level, int dir);
 
 }

@@ -5,16 +5,13 @@ public class NodeConfig {
 	private int maxLevels;
 	private int port;
 	private int numID;
-	private int shardID;
-	private int maxShards;
 	private String nameID;
 	
-	public NodeConfig(int maxLevels, int maxShards, int port, int numID, String nameID) {
+	public NodeConfig(int maxLevels, int port, int numID, String nameID) {
 		this.maxLevels = maxLevels;
 		this.port = port;
 		this.numID = numID;
 		this.nameID = nameID;
-		this.maxShards = maxShards;
 	}
 
 	public int getMaxLevels() {
@@ -23,14 +20,6 @@ public class NodeConfig {
 
 	public void setMaxLevels(int maxLevels) {
 		this.maxLevels = maxLevels;
-	}
-
-	public void setShardID (int shardID) {
-		this.shardID = shardID;
-	}
-
-	public int getShardID () {
-		return this.shardID;
 	}
 
 	public int getPort() {
@@ -57,12 +46,5 @@ public class NodeConfig {
 		this.nameID = nameID;
 	}
 
-	public void setMaxShards(int maxShards) {
-		this.maxShards = maxShards;
-	}
-
-	public int getMaxShards() {
-		return this.maxShards;
-	}
 	
 }

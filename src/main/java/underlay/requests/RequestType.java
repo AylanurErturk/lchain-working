@@ -24,5 +24,8 @@ public enum RequestType {
   GetLeftNumIDRequest,
   GetRightNumIDRequest,
   GetNodeRequest,
+  SearchNumIDStepRequest,
+  NodeInfoListResponse,
+  GetNodesWithNameIDPageRequest,
   PingRequest
 }

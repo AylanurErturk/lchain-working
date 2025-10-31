@@ -1,13 +1,13 @@
 package underlay.mock;
 
-import skipGraph.NodeInfo;
+
 import underlay.Underlay;
 import underlay.requests.GenericRequest;
-import underlay.requests.lightchain.PoVRequest;
-import underlay.requests.skipgraph.*;
+
 import underlay.responses.*;
 
 import java.io.FileNotFoundException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class MockUnderlay extends Underlay {
         return true;
     }
 
-    public GenericResponse answer(GenericRequest req) throws FileNotFoundException {
+    public GenericResponse answer(GenericRequest req) throws FileNotFoundException, RemoteException {
         return processRequest(this.skipNode, this.lightChainNode, req);
     }
 

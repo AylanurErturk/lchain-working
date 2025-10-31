@@ -67,6 +67,7 @@ public class Util {
 	 * This method grabs the public ip from an external server
 	 */
 
+	@SuppressWarnings("deprecation")
 	public static String grabIP() {
 		boolean localIP = local; //set to true if testing locally.
 		if(localIP) {

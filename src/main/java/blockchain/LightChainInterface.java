@@ -24,8 +24,6 @@ public interface LightChainInterface extends SkipGraphNode {
 
 	public Block insertGenesis();
 
-	public int getShardID();
-
 	// To shut down all instances
 	public void shutDown();
 

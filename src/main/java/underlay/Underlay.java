@@ -1,7 +1,6 @@
 package underlay;
 
 import blockchain.LightChainInterface;
-import blockchain.UpperSkipInterface;
 import skipGraph.SkipGraphNode;
 import underlay.requests.GenericRequest;
 import underlay.responses.GenericResponse;
@@ -13,18 +12,12 @@ public abstract class Underlay {
   /** The underlying LightChainInterface instance. Is used for lightchainnode class */
   protected LightChainInterface lightChainNode;
 
-  protected UpperSkipInterface upperSkipNode;
-
   public void setSkipNode(SkipGraphNode skipNode) {
     this.skipNode = skipNode;
   }
 
   public void setLightChainNode(LightChainInterface lightChainNode) {
     this.lightChainNode = lightChainNode;
-  }
-
-  public void setUpperSkipNode(UpperSkipInterface upperSkipNode) {
-    this.upperSkipNode = upperSkipNode;
   }
 
   /**

@@ -28,10 +28,7 @@ public final class PropertyManager {
 
             properties = new Properties();
 
-            if (input == null) {
-                System.out.println("Sorry, unable to find "+fileName);
-                return;
-            }
+           
             // load a properties file
             properties.load(input);
         } catch (IOException ex) {

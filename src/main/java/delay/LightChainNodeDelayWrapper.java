@@ -89,10 +89,4 @@ public class LightChainNodeDelayWrapper extends SkipNodeDelayWrapper implements 
         before();
         return innerNode.getToken();
     }
-
-    @Override
-    public int getShardID() {
-        before();
-        return innerNode.getShardID();
-    }
 }

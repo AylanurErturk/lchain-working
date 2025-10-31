@@ -8,16 +8,14 @@ public class NodeInfo implements Serializable {
 	private String address;
 	private int numID;
 	private String nameID;
-	private int shardID;
 
 	/*
 	 * Constructor for NodeInfo
 	 */
-	public NodeInfo(String adrs, int num, String name, int shardID) {
+	public NodeInfo(String adrs, int num, String name) {
 		this.address = adrs;
 		this.numID = num;
 		this.nameID = name;
-		this.shardID = shardID;
 	}
 
 	public NodeInfo(NodeInfo node) {
@@ -41,16 +39,8 @@ public class NodeInfo implements Serializable {
 		return nameID;
 	}
 
-	public int getShardID() {
-		return shardID;
-	}
-
 	public void setAddress(String adrs) {
 		this.address = adrs;
-	}
-
-	public void setShardID(int shardID) {
-		this.shardID = shardID;
 	}
 
 	public void setNumID(int num) {
@@ -60,8 +50,6 @@ public class NodeInfo implements Serializable {
 	public void setNameID(String name) {
 		this.nameID = name;
 	}
-
-
 
 	@Override
 	public int hashCode() {

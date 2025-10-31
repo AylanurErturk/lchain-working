@@ -1,6 +1,5 @@
 package underlay.responses;
 
-import skipGraph.NodeInfo;
 
 import java.security.PublicKey;
 

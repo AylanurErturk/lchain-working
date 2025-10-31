@@ -4,6 +4,7 @@ import remoteTest.PingLog;
 import skipGraph.NodeInfo;
 import skipGraph.SkipGraphNode;
 import skipGraph.SkipNode;
+import underlay.responses.SearchStepResponse;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -114,21 +115,21 @@ public class SkipNodeDelayWrapper implements SkipGraphNode {
     }
 
     @Override
-    public NodeInfo searchByNumID(int targetNum, int shardID) {
+    public NodeInfo searchByNumID(int targetNum) {
         before();
-        return innerNode.searchByNumID(targetNum, shardID);
+        return innerNode.searchByNumID(targetNum);
     }
 
     @Override
-    public List<NodeInfo> searchByNumIDHelper(int targetNum, int shardID, List<NodeInfo> lst) {
+    public List<NodeInfo> searchByNumIDHelper(int targetNum, List<NodeInfo> lst) {
         before();
-        return innerNode.searchByNumIDHelper(targetNum, shardID, lst);
+        return innerNode.searchByNumIDHelper(targetNum, lst);
     }
 
     @Override
-    public List<NodeInfo> searchNumID(int numID, int searchTarget, int level, int shardID, List<NodeInfo> lst) {
+    public List<NodeInfo> searchNumID(int numID, int targetInt, int level, List<NodeInfo> lst) {
         before();
-        return innerNode.searchNumID(numID, searchTarget, level, shardID, lst);
+        return innerNode.searchNumID(numID, targetInt, level, lst);
     }
 
     @Override
@@ -159,5 +160,17 @@ public class SkipNodeDelayWrapper implements SkipGraphNode {
     public PingLog retroPingStart(NodeInfo node, int freq) {
         before();
         return innerNode.retroPingStart(node, freq);
+    }
+
+    @Override
+    public SearchStepResponse searchNumIDStep(int curNumID, int searchTarget, int level, int dir) {
+        before();
+        return innerNode.searchNumIDStep(curNumID, searchTarget, level, dir);
+    }
+
+    @Override
+    public List<NodeInfo> getNodesWithNameIDPage(String name, int offset, int limit) {
+         before();
+        return innerNode.getNodesWithNameIDPage(name, offset, limit);
     }
 }
