@@ -13,7 +13,7 @@ import static underlay.responses.BooleanResponse.BooleanResponseOf;
  * Note that at this proof-of-concept level, this correctness verifier approves all transactions that have the same
  * type of owner and validator (i.e., both honest or malicious).
  */
-class LightChainCV extends CorrectnessVerifier {
+public class LightChainCV extends CorrectnessVerifier {
     // TODO: owner is a confusing name, should be refactored.
     public LightChainCV(LightChainNode owner)  {
         super(owner);
@@ -37,7 +37,7 @@ class LightChainCV extends CorrectnessVerifier {
         boolean ownerMode = owner.view.getMode(t.getOwner());
         if (ownerMode != owner.mode) {
             // TODO: apply logging best practice.
-            owner.getLogger().debug("Transaction not correct");
+            owner.logger.debug("Transaction not correct");
         }
         // by convention of prototyping, a transaction is correct if both owner and validator (i.e., this node)
         // are of the same mode, otherwise it is incorrect.

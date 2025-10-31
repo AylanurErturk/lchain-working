@@ -2,6 +2,8 @@ package skipGraph;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import net.sf.saxon.trans.SymbolicName.F;
 import underlay.Underlay;
 import underlay.rmi.RMIUnderlay;
 import util.Const;
@@ -17,12 +19,19 @@ class SkipNodeTest {
 
     private static int port = 7000;
     private final int maxLevels = 3;
+    private final int maxShards = 10;
     private final int numID1 = 1;
     private final int numID2 = 2;
     private final int numID3 = 3;
     private final int numID4 = 15;
     private final int numID5 = 50;
     private final int numID6 = 100;
+    private final int shardID1 = numID1 % maxShards;
+    private final int shardID2 = numID2 % maxShards;
+    private final int shardID3 = numID3 % maxShards;
+    private final int shardID4 = numID4 % maxShards;
+    private final int shardID5 = numID5 % maxShards;
+    private final int shardID6 = numID6 % maxShards;
     private final String nameID1 = "011";
     private final String nameID2 = "001";
     private final String nameID3 = "100";
@@ -38,13 +47,13 @@ class SkipNodeTest {
 
     @BeforeEach
     public void init() {
-        initialConfig = new NodeConfig(maxLevels, port++, numID2, nameID2);
-        config1 = new NodeConfig(maxLevels, port++, numID1, nameID1);
-        config2 = new NodeConfig(maxLevels, port++, numID3, nameID3);
+        initialConfig = new NodeConfig(maxLevels, maxShards, port++, numID2, nameID2);
+        config1 = new NodeConfig(maxLevels, maxShards, port++, numID1, nameID1);
+        config2 = new NodeConfig(maxLevels, maxShards, port++, numID3, nameID3);
 
-        sameNameIDConfig1 = new NodeConfig(maxLevels, port++, numID4, nameID4);
-        sameNameIDConfig2 = new NodeConfig(maxLevels, port++, numID5, nameID4);
-        sameNameIDConfig3 = new NodeConfig(maxLevels, port++, numID6, nameID4);
+        sameNameIDConfig1 = new NodeConfig(maxLevels, maxShards, port++, numID4, nameID4);
+        sameNameIDConfig2 = new NodeConfig(maxLevels, maxShards, port++, numID5, nameID4);
+        sameNameIDConfig3 = new NodeConfig(maxLevels, maxShards, port++, numID6, nameID4);
     }
 
 
@@ -55,9 +64,9 @@ class SkipNodeTest {
 
         Underlay underlay = new RMIUnderlay(initialConfig.getPort());
         SkipNode node = new SkipNode(initialConfig, Const.DUMMY_INTRODUCER, true, underlay);
-        node.insertDataNode(numID1, nameID1);
-        node.insertDataNode(numID3, nameID3);
-        node.insertDataNode(numID4, nameID4);
+        node.insertDataNode(numID1, nameID1, shardID1);
+        node.insertDataNode(numID3, nameID3, shardID3);
+        node.insertDataNode(numID4, nameID4, shardID4);
 
         node.delete(numID1);
 
@@ -109,22 +118,22 @@ class SkipNodeTest {
         Underlay underlay3 = new RMIUnderlay(config2.getPort());
         SkipNode node3 = new SkipNode(config2, node1.getAddress(), false, underlay3);
 
-        NodeInfo res1 = node1.searchByNumID(node2.getNumID());
+        NodeInfo res1 = node1.searchByNumID(node2.getNumID(), node2.getShardID());
         assertEquals(node2.getPeer(), res1, "node 2 not found");
 
-        NodeInfo res2 = node1.searchByNumID(node3.getNumID());
+        NodeInfo res2 = node1.searchByNumID(node3.getNumID(), node3.getShardID());
         assertEquals(node3.getPeer(), res2, "node 3 not found");
 
-        NodeInfo res3 = node2.searchByNumID(node1.getNumID());
+        NodeInfo res3 = node2.searchByNumID(node1.getNumID(), node1.getShardID());
         assertEquals(node1.getPeer(), res3, "node 1 not found");
 
-        NodeInfo res4 = node2.searchByNumID(node3.getNumID());
+        NodeInfo res4 = node2.searchByNumID(node3.getNumID(), node3.getShardID());
         assertEquals(node3.getPeer(), res4, "node 3 not found");
 
-        NodeInfo res5 = node3.searchByNumID(node1.getNumID());
+        NodeInfo res5 = node3.searchByNumID(node1.getNumID(), node1.getShardID());
         assertEquals(node1.getPeer(), res5, "node 1 not found");
 
-        NodeInfo res6 = node3.searchByNumID(node2.getNumID());
+        NodeInfo res6 = node3.searchByNumID(node2.getNumID(), node2.getShardID());
         assertEquals(node2.getPeer(), res6, "node 2 not found");
 
         underlay1.terminate();

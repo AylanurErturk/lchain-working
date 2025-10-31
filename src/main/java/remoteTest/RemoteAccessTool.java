@@ -116,7 +116,7 @@ public class RemoteAccessTool {
             List<NodeInfo> lst = new ArrayList<NodeInfo>();
             NodeInfo result = null;
             try {
-              lst = node.searchByNumIDHelper(num, lst);
+              lst = node.searchByNumIDHelper(num, node.getShardID(), lst);
               result = lst.get(lst.size() - 1);
             } catch (Exception e) {
               e.printStackTrace();
@@ -553,7 +553,7 @@ public class RemoteAccessTool {
     NodeInfo curNode = null;
     nodeList = new ArrayList<NodeInfo>();
     try {
-      curNode = node.searchByNumID(0);
+      curNode = node.searchByNumID(0, node.getShardID());
       System.out.println();
       while (curNode != null) {
         nodeList.add(curNode);
@@ -574,7 +574,7 @@ public class RemoteAccessTool {
     HashSet<String> addresses = new HashSet<String>();
     nodeList = new ArrayList<>();
     try {
-      curNode = node.searchByNumID(0);
+      curNode = node.searchByNumID(0, node.getShardID());
       while (curNode != null) {
         addresses.add(curNode.getAddress());
         NodeInfoResponse response = NodeInfoResponseOf(RMIUnderlay.sendMessage(

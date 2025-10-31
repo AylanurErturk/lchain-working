@@ -23,8 +23,8 @@ public class Transaction extends NodeInfo {
 
 	// need to add address to transaction
 
-	public Transaction(String prev, int owner, String cont, String address, int levels) {
-		super(address, 0, prev);
+	public Transaction(String prev, int owner, String cont, String address, int levels, int shardID) {
+		super(address, 0, prev, shardID);
 		this.prev = prev;
 		this.owner = owner;
 		this.cont = cont;
@@ -36,7 +36,7 @@ public class Transaction extends NodeInfo {
 	}
 
 	public Transaction(Transaction t) {
-		super(t.getAddress(), t.getNumID(), t.getNameID());
+		super(t.getAddress(), t.getNumID(), t.getNameID(), t.getShardID());
 		hasher = new HashingTools();
 		this.prev = t.getPrev();
 		this.owner = t.getOwner();

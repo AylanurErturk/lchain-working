@@ -48,11 +48,11 @@ public interface SkipGraphNode {
 
 	public NodeInfo searchByNameID(String targetString);
 
-	public NodeInfo searchByNumID(int targetNum);
+	public NodeInfo searchByNumID(int searchTarget, int shardID);
 
-	public List<NodeInfo> searchByNumIDHelper(int targetNum, List<NodeInfo> lst);
+	public List<NodeInfo> searchByNumIDHelper(int searchTarget, int shardID, List<NodeInfo> lst);
 
-	public List<NodeInfo> searchNumID(int numID, int searchTarget, int level, List<NodeInfo> lst);
+	public List<NodeInfo> searchNumID(int numID, int searchTarget, int level, int shardID, List<NodeInfo> lst);
 
 	/*
 	 * Skip Node with data nodes functions

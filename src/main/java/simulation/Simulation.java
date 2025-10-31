@@ -4,6 +4,7 @@ import blockchain.LightChainNode;
 import blockchain.Parameters;
 import skipGraph.LookupTable;
 import skipGraph.NodeInfo;
+import skipGraph.UpperSkipNode;
 import underlay.Underlay;
 import underlay.rmi.RMIUnderlay;
 import util.Const;
@@ -34,7 +35,11 @@ public class Simulation {
 					if(i == 0){
 						node = new LightChainNode(params, port, Const.DUMMY_INTRODUCER, true, underlay);
 						initialNode = node;
-					} else {
+					} else if (i > 0 && i < params.getMaxShards()) {
+						node = new LightChainNode(params, port, initialNode.getAddress(), true, underlay);
+					} 
+					
+					else {
 						node = new LightChainNode(params, port, initialNode.getAddress(), false, underlay);
 					}
 					nodes.add(node);
@@ -43,7 +48,7 @@ public class Simulation {
 					continue;
 				}
 			}
-
+			
 			initialNode.insertGenesis();
 
 			initialNode.logLevel(0);

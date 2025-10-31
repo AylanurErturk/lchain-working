@@ -1,5 +1,6 @@
 package fixture;
 
+import blockchain.Parameters;
 import blockchain.Transaction;
 import signature.SignedBytes;
 import skipGraph.NodeInfo;
@@ -11,6 +12,7 @@ import java.util.UUID;
 public class Fixtures {
   static Random r = new Random();
   static int socket = 7000;
+  static Parameters params = new Parameters();
 
   public static String randomString() {
     char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
@@ -30,7 +32,8 @@ public class Fixtures {
     String IP = IPAddressFixture();
     int numID = r.nextInt(32);
     String nameID = r.nextInt(32) + "";
-    return new NodeInfo(IP, numID, nameID);
+    int shardID = numID % params.getMaxShards();
+    return new NodeInfo(IP, numID, nameID, shardID);
   }
 
   public static SignedBytes SignedBytesFixture() {
@@ -44,7 +47,8 @@ public class Fixtures {
     String randStr1 = randomString();
     String randStr2 = randomString();
     int levels = r.nextInt(32);
-    return new Transaction(randStr1, numID, randStr2, IP, levels);
+    int shardID = numID % params.getMaxShards();
+    return new Transaction(randStr1, numID, randStr2, IP, levels, shardID);
   }
 
   public static int PortFixture() {

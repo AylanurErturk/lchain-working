@@ -64,8 +64,8 @@ public class MockUnderlayTest {
      */
     @Test
     void sendMessageSkipNodeTest(){
-        assertEquals(node2.getPeer(), node1.searchByNumID(node2.getNumID()), "node 2 not found");
-        assertEquals(node1.getPeer(), node2.searchByNumID(node1.getNumID()), "node 1 not found");
+        assertEquals(node2.getPeer(), node1.searchByNumID(node2.getNumID(), node2.getShardID()), "node 2 not found");
+        assertEquals(node1.getPeer(), node2.searchByNumID(node1.getNumID(), node1.getShardID()), "node 1 not found");
 
         assertEquals(node2.getPeer(), node1.searchByNameID(node2.getNameID()), "node 2 not found");
         assertEquals(node1.getPeer(), node2.searchByNameID(node1.getNameID()), "node 1 not found");

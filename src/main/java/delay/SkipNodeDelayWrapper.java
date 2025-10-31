@@ -114,21 +114,21 @@ public class SkipNodeDelayWrapper implements SkipGraphNode {
     }
 
     @Override
-    public NodeInfo searchByNumID(int targetNum) {
+    public NodeInfo searchByNumID(int targetNum, int shardID) {
         before();
-        return innerNode.searchByNumID(targetNum);
+        return innerNode.searchByNumID(targetNum, shardID);
     }
 
     @Override
-    public List<NodeInfo> searchByNumIDHelper(int targetNum, List<NodeInfo> lst) {
+    public List<NodeInfo> searchByNumIDHelper(int targetNum, int shardID, List<NodeInfo> lst) {
         before();
-        return innerNode.searchByNumIDHelper(targetNum, lst);
+        return innerNode.searchByNumIDHelper(targetNum, shardID, lst);
     }
 
     @Override
-    public List<NodeInfo> searchNumID(int numID, int searchTarget, int level, List<NodeInfo> lst) {
+    public List<NodeInfo> searchNumID(int numID, int searchTarget, int level, int shardID, List<NodeInfo> lst) {
         before();
-        return innerNode.searchNumID(numID, searchTarget, level, lst);
+        return innerNode.searchNumID(numID, searchTarget, level, shardID, lst);
     }
 
     @Override
